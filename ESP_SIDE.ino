@@ -1,8 +1,8 @@
 //#define BLYNK_PRINT Serial
 
-//#define BLYNK_TEMPLATE_ID           "TMPxxxxxx"
-//#define BLYNK_TEMPLATE_NAME         "Device"
-//#define BLYNK_AUTH_TOKEN            "YourAuthToken"
+#define BLYNK_TEMPLATE_ID           "TMPxxxxxx"
+#define BLYNK_TEMPLATE_NAME         "Device"
+#define BLYNK_AUTH_TOKEN            "YourAuthToken"
 
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
@@ -23,7 +23,7 @@ void setup(){
 
 void loop(){
   Blynk.run();
-  if (Serial.available){
+  if (Serial.available()){
     receivedData= Serial.readStringUntil('=');
     j=0;
     bantu="";
@@ -34,7 +34,7 @@ void loop(){
         j++;
       }
       else{
-        if((isDigit(receivedData[i])) || (receivedData[i]==".")){
+        if((isDigit(receivedData[i])) || (receivedData[i]=='.')){
           bantu=bantu+receivedData[i];
         }
         else{
