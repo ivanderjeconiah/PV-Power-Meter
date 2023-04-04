@@ -1,6 +1,9 @@
 #include<SoftwareSerial.h>
+#include<PZEM004Tv30.h>
 
 SoftwareSerial ESPCon(9,8);
+SoftwareSerial PZEM(10,11);
+PZEM004Tv30 pzem(PZEM);
 
 #define R1 30000.0
 #define R2 7500.0
@@ -36,6 +39,9 @@ const float gamma=0.7;
 const float RL10=50;
 float lux;
 
+//var for AC Sensor
+float ACvoltage,ACcurrent,ACpower;
+
 void readVoltage1(){
   adcValue = analogRead(VoltageSensor1);
   adcVoltage  = (adcValue * 5.0) / 1024.0; 
@@ -64,7 +70,7 @@ void readCurrent(){
 }
 
 void sendDat(){
-  data=String(inVoltage1)+" "+String(Current)+" "+String(pvPow)+" "+String(inVoltage2)+" "+String(lux)+"=";
+  data=String(inVoltage1)+" "+String(Current)+" "+String(pvPow)+" "+String(inVoltage2)+" "+String(lux)+" "+String(ACvoltage)+" "+String(ACcurrent)+" "+String(ACpower)+"=";
   Serial.println(data);
   data.getBytes(buf,data.length()+1);
   ESPCon.write(buf, data.length());
@@ -79,6 +85,19 @@ void readLux(){
   Serial.println(lux);
 }
 
+void readACSensor(){
+  ACvoltage=pzem.voltage();
+  ACcurrent=pzem.current();
+  ACpower=pzem.power();
+
+  Serial.print("AC Voltage: ");
+  Serial.println(ACvoltage);
+  Serial.print("AC Current: ");
+  Serial.println(ACcurrent);
+  Serial.print("AC Power: ");
+  Serial.println(ACpower);  
+}
+
 void setup(){
   Serial.begin(9600);
 }
@@ -89,6 +108,7 @@ void loop(){
   pvPow= inVoltage1*Current;
   readVoltage2();
   readLux();
+  readACSensor();
   sendDat();
   delay(1000);
 }
