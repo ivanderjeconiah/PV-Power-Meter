@@ -1,6 +1,7 @@
 #include <PZEM004Tv30.h> 
 #include <SoftwareSerial.h>
 #include <ModbusMaster.h>
+#include <LiquidCrystal_I2C.h>
 
 #define MAX485_DE 16
 #define MAX485_RE 0
@@ -8,6 +9,7 @@
 PZEM004Tv30 pzem(13,15);
 ModbusMaster node;
 SoftwareSerial PZEMDC;
+LiquidCrystal_I2C lcd(0x27, 16,2);
 
 //var AC sensor
 float ACVoltage, ACCurrent,ACPower,ACFrequency,ACEnergy,cosPhi;
@@ -69,6 +71,71 @@ void DC(){
   
 }
 
+void Halaman1(){
+  lcd.setCursor(7,0);
+  lcd.print("AC MONITORING");
+
+  lcd.setCursor(0,1);
+  lcd.print("V:");
+  lcd.setCursor(7,1);
+  lcd.print("V FREQ:");
+  lcd.setCursor(18,1);
+  lcd.print("Hz");
+
+  for (int i=2; i<=6;i++){
+    lcd.setCursor(i,1);
+    lcd.print(" ");
+  }
+  for (int i=14; i<=17;i++){
+    lcd.setCursor(i,1);
+    lcd.print(" ");
+  }
+  
+  lcd.setCursor(2,1);
+  lcd.print(String(ACVoltage,1));
+  lcd.setCursor(14,1);
+  lcd.print(String(ACFrequency,1));
+
+  lcd.setCursor(0,2);
+  lcd.print("A:");
+  lcd.setCursor(7,2);
+  lcd.print("A COS:");
+
+  for (int i=2; i<=6;i++){
+    lcd.setCursor(i,2);
+    lcd.print(" ");
+  }
+  for (int i=14; i<=17;i++){
+    lcd.setCursor(i,2);
+    lcd.print(" ");
+  }
+
+  lcd.setCursor(2,2);
+  lcd.print(String(ACCurrent,1));
+  lcd.setCursor(14,2);
+  lcd.print(String(cosPhi,1));
+
+  lcd.setCursor(0,3);
+  lcd.print("P:");
+  lcd.setCursor(7,3);
+  lcd.print("W T:");
+
+  for (int i=2; i<=6;i++){
+    lcd.setCursor(i,3);
+    lcd.print(" ");
+  }
+  for (int i=11; i<=19;i++){
+    lcd.setCursor(i,3);
+    lcd.print(" ");
+  }
+
+  lcd.setCursor(2,3);
+  lcd.print(String(ACPower,1));
+  lcd.setCursor(14,1);
+  lcd.print("14:18:07");
+  lcd.display();
+}
+
 void setup(){
   Serial.begin(9600);
   PZEMDC.begin(9600,SWSERIAL_8N2,2,14);
@@ -81,9 +148,14 @@ void setup(){
   node.preTransmission(preTransmission);
   node.postTransmission(postTransmission);
   node.begin(pzemSlaveAddr,PZEMDC);
+
+  lcd.init();
+  lcd.backlight();
 }
 
 void loop (){
   AC();
   DC();
+  Halaman1();
+  delay(1000);
 }
