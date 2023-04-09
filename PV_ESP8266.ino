@@ -150,6 +150,8 @@ void setup(){
   node.begin(pzemSlaveAddr,PZEMDC);
 
   lcd.init();
+  lcd.clear();
+  lcd.display();
   lcd.backlight();
 }
 
