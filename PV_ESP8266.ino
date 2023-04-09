@@ -131,7 +131,7 @@ void Halaman1(){
 
   lcd.setCursor(2,3);
   lcd.print(String(ACPower,1));
-  lcd.setCursor(14,3);
+  lcd.setCursor(11,3);
   lcd.print("14:18:07");
   lcd.display();
 }
