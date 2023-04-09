@@ -99,7 +99,7 @@ void Halaman1(){
   lcd.setCursor(0,2);
   lcd.print("A:");
   lcd.setCursor(7,2);
-  lcd.print("A COS:");
+  lcd.print("A COS :");
 
   for (int i=2; i<=6;i++){
     lcd.setCursor(i,2);
