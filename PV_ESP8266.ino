@@ -9,7 +9,7 @@
 PZEM004Tv30 pzem(13,15);
 ModbusMaster node;
 SoftwareSerial PZEMDC;
-LiquidCrystal_I2C lcd(0x27, 16,2);
+LiquidCrystal_I2C lcd(0x27, 20,4);
 
 //var AC sensor
 float ACVoltage, ACCurrent,ACPower,ACFrequency,ACEnergy,cosPhi;
@@ -72,7 +72,7 @@ void DC(){
 }
 
 void Halaman1(){
-  lcd.setCursor(7,0);
+  lcd.setCursor(4,0);
   lcd.print("AC MONITORING");
 
   lcd.setCursor(0,1);
@@ -131,7 +131,7 @@ void Halaman1(){
 
   lcd.setCursor(2,3);
   lcd.print(String(ACPower,1));
-  lcd.setCursor(14,1);
+  lcd.setCursor(14,3);
   lcd.print("14:18:07");
   lcd.display();
 }
