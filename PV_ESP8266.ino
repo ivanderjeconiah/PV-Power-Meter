@@ -136,6 +136,96 @@ void Halaman1(){
   lcd.display();
 }
 
+void Halaman2(){
+  lcd.setCursor(0,0);
+  lcd.print("V:");
+  lcd.setCursor(7,0);
+  lcd.print("V Psh:");
+  lcd.setCursor(19,0);
+  lcd.print("H");
+
+  for (int i=2; i<=6;i++){
+    lcd.setCursor(i,0);
+    lcd.print(" ");
+  }
+  for (int i=14; i<=17;i++){
+    lcd.setCursor(i,0);
+    lcd.print(" ");
+  }
+
+  lcd.setCursor(2,0);
+  lcd.print(String(ACVoltage,1));
+  lcd.setCursor(14,0);
+  lcd.print(String(ACFrequency,1));
+  //================================
+  
+  lcd.setCursor(0,1);
+  lcd.print("A:");
+  lcd.setCursor(7,1);
+  lcd.print("A PV :");
+  lcd.setCursor(19,0);
+  lcd.print("%");
+
+  for (int i=2; i<=6;i++){
+    lcd.setCursor(i,1);
+    lcd.print(" ");
+  }
+  for (int i=14; i<=17;i++){
+    lcd.setCursor(i,1);
+    lcd.print(" ");
+  }
+
+  lcd.setCursor(2,1);
+  lcd.print(String(ACCurrent,1));
+  lcd.setCursor(14,1);
+  lcd.print(String(cosPhi,1));
+  //===================================
+
+  lcd.setCursor(0,2);
+  lcd.print("P:");
+  lcd.setCursor(7,2);
+  lcd.print("W SOC:");
+  lcd.setCursor(19,2);
+  lcd.print("%");
+
+  for (int i=2; i<=6;i++){
+    lcd.setCursor(i,2);
+    lcd.print(" ");
+  }
+  for (int i=11; i<=19;i++){
+    lcd.setCursor(i,2);
+    lcd.print(" ");
+  }
+
+  lcd.setCursor(2,2);
+  lcd.print(String(ACPower,1));
+  lcd.setCursor(11,2);
+  lcd.print("SOC");
+  //===================================
+
+  lcd.setCursor(0,3);
+  lcd.print("D:");
+  lcd.setCursor(6,3);
+  lcd.print("KWh Y:");
+  lcd.setCursor(17,3);
+  lcd.print("KWh");
+
+  for (int i=2; i<=6;i++){
+    lcd.setCursor(i,3);
+    lcd.print(" ");
+  }
+  for (int i=11; i<=19;i++){
+    lcd.setCursor(i,3);
+    lcd.print(" ");
+  }
+
+  lcd.setCursor(2,3);
+  lcd.print("D");
+  lcd.setCursor(11,3);
+  lcd.print("Y");
+  lcd.display();
+}
+
 void setup(){
   Serial.begin(9600);
   PZEMDC.begin(9600,SWSERIAL_8N2,2,14);
