@@ -226,6 +226,22 @@ void Halaman2(){
   lcd.display();
 }
 
+Halaman3(){
+  lcd.setCursor(0,0);
+  lcd.print("RECORD KWh 1 MINGGU");
+  lcd.setCursor(0,1);
+  lcd.print("D1:       D4:");
+  lcd.setCursor(0,2);
+  lcd.print("D1:       D4:");
+  lcd.setCursor(0,3);
+  lcd.print("D1:       D4:");
+  lcd.display();
+}
+
+Halaman4(){
+  lcd.setCursor(0,0);
+}
+
 void setup(){
   Serial.begin(9600);
   PZEMDC.begin(9600,SWSERIAL_8N2,2,14);
