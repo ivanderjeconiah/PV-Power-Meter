@@ -90,7 +90,7 @@ void Halaman1(){
 
   lcd.setCursor(0,3);
   lcd.print("P:     W T: 14:15:07");
-  lcd.display();
+  
 }
 
 void Halaman2(){
@@ -105,7 +105,7 @@ void Halaman2(){
   
   lcd.setCursor(0,3);
   lcd.print("D:    kWh Y :    KWh");
-  lcd.display();
+  
 }
 
 void Halaman4(){
@@ -117,7 +117,7 @@ void Halaman4(){
   lcd.print("D1:       D4:");
   lcd.setCursor(0,3);
   lcd.print("D1:       D4:");
-  lcd.display();
+  
 }
 
 void Halaman3(){
@@ -129,7 +129,7 @@ void Halaman3(){
   lcd.print("RUPIAH:");
   lcd.setCursor(0,3);
   lcd.print("STATUS: DISCHARGING");
-  lcd.display();
+  
 }
 
 void updateData(){
@@ -154,7 +154,6 @@ void setup(){
   lcd.init();
   lcd.backlight();
   lcd.clear();
-  //lcd.display();
   delay(100);
   Halaman1();
   timer=millis();
