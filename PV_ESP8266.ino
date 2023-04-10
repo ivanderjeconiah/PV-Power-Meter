@@ -19,6 +19,12 @@ static uint8_t pzemSlaveAddr =0x01;
 static uint16_t NewShuntAddr = 0x0000;
 float DCVoltage,DCCurrent,DCPower,DCEnergy;
 
+//var for reading
+long int timer;
+
+//var for page control
+uint8_t page=1;
+
 void AC(){
   ACVoltage = pzem.voltage();
   ACCurrent = pzem.current();
@@ -76,157 +82,33 @@ void Halaman1(){
   lcd.print("AC MONITORING");
 
   lcd.setCursor(0,1);
-  lcd.print("V:");
-  lcd.setCursor(7,1);
-  lcd.print("V FREQ:");
-  lcd.setCursor(18,1);
-  lcd.print("Hz");
+  lcd.print("V:     V FREQ:    Hz");
 
-  for (int i=2; i<=6;i++){
-    lcd.setCursor(i,1);
-    lcd.print(" ");
-  }
-  for (int i=14; i<=17;i++){
-    lcd.setCursor(i,1);
-    lcd.print(" ");
-  }
-  
-  lcd.setCursor(2,1);
-  lcd.print(String(ACVoltage,1));
-  lcd.setCursor(14,1);
-  lcd.print(String(ACFrequency,1));
 
   lcd.setCursor(0,2);
-  lcd.print("A:");
-  lcd.setCursor(7,2);
-  lcd.print("A COS :");
-
-  for (int i=2; i<=6;i++){
-    lcd.setCursor(i,2);
-    lcd.print(" ");
-  }
-  for (int i=14; i<=17;i++){
-    lcd.setCursor(i,2);
-    lcd.print(" ");
-  }
-
-  lcd.setCursor(2,2);
-  lcd.print(String(ACCurrent,1));
-  lcd.setCursor(14,2);
-  lcd.print(String(cosPhi,1));
+  lcd.print("I:     A COS :");
 
   lcd.setCursor(0,3);
-  lcd.print("P:");
-  lcd.setCursor(7,3);
-  lcd.print("W T:");
-
-  for (int i=2; i<=6;i++){
-    lcd.setCursor(i,3);
-    lcd.print(" ");
-  }
-  for (int i=11; i<=19;i++){
-    lcd.setCursor(i,3);
-    lcd.print(" ");
-  }
-
-  lcd.setCursor(2,3);
-  lcd.print(String(ACPower,1));
-  lcd.setCursor(11,3);
-  lcd.print("14:18:07");
+  lcd.print("P:     W T: 14:15:07");
   lcd.display();
 }
 
 void Halaman2(){
   lcd.setCursor(0,0);
-  lcd.print("V:");
-  lcd.setCursor(7,0);
-  lcd.print("V Psh:");
-  lcd.setCursor(19,0);
-  lcd.print("H");
+  lcd.print("V:     V  Psh:     H");
 
-  for (int i=2; i<=6;i++){
-    lcd.setCursor(i,0);
-    lcd.print(" ");
-  }
-  for (int i=14; i<=17;i++){
-    lcd.setCursor(i,0);
-    lcd.print(" ");
-  }
-
-  lcd.setCursor(2,0);
-  lcd.print(String(ACVoltage,1));
-  lcd.setCursor(14,0);
-  lcd.print(String(ACFrequency,1));
-  //================================
-  
   lcd.setCursor(0,1);
-  lcd.print("A:");
-  lcd.setCursor(7,1);
-  lcd.print("A PV :");
-  lcd.setCursor(19,0);
-  lcd.print("%");
-
-  for (int i=2; i<=6;i++){
-    lcd.setCursor(i,1);
-    lcd.print(" ");
-  }
-  for (int i=14; i<=17;i++){
-    lcd.setCursor(i,1);
-    lcd.print(" ");
-  }
-
-  lcd.setCursor(2,1);
-  lcd.print(String(ACCurrent,1));
-  lcd.setCursor(14,1);
-  lcd.print(String(cosPhi,1));
-  //===================================
+  lcd.print("I:     A  PV :     %");
 
   lcd.setCursor(0,2);
-  lcd.print("P:");
-  lcd.setCursor(7,2);
-  lcd.print("W SOC:");
-  lcd.setCursor(19,2);
-  lcd.print("%");
-
-  for (int i=2; i<=6;i++){
-    lcd.setCursor(i,2);
-    lcd.print(" ");
-  }
-  for (int i=11; i<=19;i++){
-    lcd.setCursor(i,2);
-    lcd.print(" ");
-  }
-
-  lcd.setCursor(2,2);
-  lcd.print(String(ACPower,1));
-  lcd.setCursor(11,2);
-  lcd.print("SOC");
-  //===================================
-
+  lcd.print("P:     W  SOC:     %");
+  
   lcd.setCursor(0,3);
-  lcd.print("D:");
-  lcd.setCursor(6,3);
-  lcd.print("KWh Y:");
-  lcd.setCursor(17,3);
-  lcd.print("KWh");
-
-  for (int i=2; i<=6;i++){
-    lcd.setCursor(i,3);
-    lcd.print(" ");
-  }
-  for (int i=11; i<=19;i++){
-    lcd.setCursor(i,3);
-    lcd.print(" ");
-  }
-
-  lcd.setCursor(2,3);
-  lcd.print("D");
-  lcd.setCursor(11,3);
-  lcd.print("Y");
+  lcd.print("D:    kWh Y :    KWh");
   lcd.display();
 }
 
-Halaman3(){
+void Halaman4(){
   lcd.setCursor(0,0);
   lcd.print("RECORD KWh 1 MINGGU");
   lcd.setCursor(0,1);
@@ -238,8 +120,16 @@ Halaman3(){
   lcd.display();
 }
 
-Halaman4(){
+void Halaman3(){
   lcd.setCursor(0,0);
+  lcd.print("AC P TOT:        KWh");
+  lcd.setCursor(0,1);
+  lcd.print("DC P TOT:        KWh");
+  lcd.setCursor(0,2);
+  lcd.print("RUPIAH:");
+  lcd.setCursor(0,3);
+  lcd.print("STATUS: DISCHARGING");
+  lcd.display();
 }
 
 void setup(){
@@ -255,16 +145,41 @@ void setup(){
   node.postTransmission(postTransmission);
   node.begin(pzemSlaveAddr,PZEMDC);
 
+  pinMode(12,INPUT_PULLUP);
+
   lcd.init();
   lcd.clear();
   lcd.display();
   lcd.backlight();
+  Halaman1();
+  timer=millis();
 }
 
 void loop (){
-  AC();
-  DC();
-  //Halaman1();
-  Halaman2();
-  delay(1000);
+  if(digitalRead(12)==LOW){
+    delay(10);
+    if(digitalRead(12)==LOW){
+      page++;
+      if(page>4){
+        page=1;
+      }
+      lcd.clear();
+      if(page==1){
+        Halaman1();
+      }
+      else if(page==2){
+        Halaman2();
+      }
+      else if(page==3){
+        Halaman3();
+      }
+      else if(page==4){
+        Halaman4();
+      }
+    }
+  }
+  if(millis()-timer>=1000){
+    AC();
+    DC();
+  }
 }
