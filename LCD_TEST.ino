@@ -151,7 +151,7 @@ void setup(){
 
   pinMode(12,INPUT_PULLUP);
 
-  lcd.init();
+  lcd.begin();
   lcd.backlight();
   lcd.clear();
   delay(100);
