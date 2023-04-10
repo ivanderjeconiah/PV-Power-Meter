@@ -2,6 +2,7 @@
 //#include <SoftwareSerial.h>
 //#include <ModbusMaster.h>
 #include <LiquidCrystal_I2C.h>
+#include <Wire.h>
 
 //#define MAX485_DE 16
 //#define MAX485_RE 0
@@ -150,8 +151,8 @@ void setup(){
   //node.begin(pzemSlaveAddr,PZEMDC);
 
   pinMode(12,INPUT_PULLUP);
-
-  lcd.begin();
+  Wire.begin(D2,D1);
+  lcd.init();
   lcd.backlight();
   lcd.clear();
   delay(100);
