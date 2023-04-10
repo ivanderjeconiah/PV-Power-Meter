@@ -164,6 +164,7 @@ void loop (){
   if(digitalRead(12)==LOW){
     delay(10);
     if(digitalRead(12)==LOW){
+      Serial.println("NEXT PAGE");
       page++;
       if(page>4){
         page=1;
