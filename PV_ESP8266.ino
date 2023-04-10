@@ -248,6 +248,7 @@ void setup(){
 void loop (){
   AC();
   DC();
-  Halaman1();
+  //Halaman1();
+  Halaman2();
   delay(1000);
 }
