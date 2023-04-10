@@ -132,6 +132,10 @@ void Halaman3(){
   lcd.display();
 }
 
+void updateData(){
+  
+}
+
 void setup(){
   Serial.begin(9600);
   PZEMDC.begin(9600,SWSERIAL_8N2,2,14);
@@ -148,9 +152,10 @@ void setup(){
   pinMode(12,INPUT_PULLUP);
 
   lcd.init();
-  lcd.clear();
-  lcd.display();
   lcd.backlight();
+  lcd.clear();
+  //lcd.display();
+  delay(100);
   Halaman1();
   timer=millis();
 }
