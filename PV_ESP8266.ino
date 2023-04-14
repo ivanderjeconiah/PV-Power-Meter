@@ -1,12 +1,13 @@
 #include <PZEM004Tv30.h> 
 #include <SoftwareSerial.h>
 #include <ModbusMaster.h>
+#include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
 #define MAX485_DE 16
 #define MAX485_RE 0
 
-PZEM004Tv30 pzem(13,15);
+PZEM004Tv30 pzem(13,12);
 ModbusMaster node;
 SoftwareSerial PZEMDC;
 LiquidCrystal_I2C lcd(0x27, 20,4);
@@ -149,9 +150,10 @@ void setup(){
   node.postTransmission(postTransmission);
   node.begin(pzemSlaveAddr,PZEMDC);
 
-  pinMode(12,INPUT_PULLUP);
+  pinMode(15,INPUT);
 
-  lcd.init();
+  Wire.begin(D2,D1);
+  lcd.begin(20,4);
   lcd.backlight();
   lcd.clear();
   delay(100);
@@ -160,9 +162,9 @@ void setup(){
 }
 
 void loop (){
-  if(digitalRead(12)==LOW){
-    delay(10);
-    if(digitalRead(12)==LOW){
+  if(digitalRead(15)==HIGH){
+    delay(130);
+    if(digitalRead(15)==HIGH){
       Serial.println("NEXT PAGE");
       page++;
       if(page>4){
@@ -183,8 +185,10 @@ void loop (){
       }
     }
   }
-  if(millis()-timer>=1000){
+  if(millis()-timer>=1500){
     AC();
     DC();
+    timer=millis();
+  
   }
 }
