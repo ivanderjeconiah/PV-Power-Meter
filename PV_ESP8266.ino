@@ -6,6 +6,14 @@
 
 #define MAX485_DE 16
 #define MAX485_RE 0
+#define BLYNK_PRINT Serial
+
+#define BLYNK_TEMPLATE_ID "TMPLiy9Icizd"
+#define BLYNK_TEMPLATE_NAME "Power Meter"
+#define BLYNK_AUTH_TOKEN "H69ULqGnrCSkdx1wbz303k8IM4mABVOW"
+
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
 
 PZEM004Tv30 pzem(13,12);
 ModbusMaster node;
@@ -26,6 +34,15 @@ long int timer;
 //var for page control
 uint8_t page=1;
 
+//var of clock
+String jam;
+long int clockTimer;
+bool getTime=false;
+
+//var for BLYNK
+char ssid[]= "s";
+char pass[]= "11111111";
+
 void AC(){
   ACVoltage = pzem.voltage();
   ACCurrent = pzem.current();
@@ -40,20 +57,35 @@ void AC(){
   Serial.println("AC E = " + String(ACEnergy));
   Serial.println("AC F = " + String(ACFrequency));
   Serial.println("AC PF = " + String(cosPhi));
+
+  for (int i=2; i<=6 ; i++) {
+      lcd.setCursor(i,1);
+      lcd.print(" ");
+      lcd.setCursor(i,2);
+      lcd.print(" ");
+      lcd.setCursor(i,3);
+      lcd.print(" ");
+  }
+  lcd.setCursor(2,1);
+  lcd.print(String(ACVoltage,2);
+  uint8_t totalString = String(ACCurent,0).length()
+  lcd.setCursor(2,2);
+  lcd.print(String(ACCurrent,3+((-1)*(totalString-1)));
+  lcd.setCursor(2,3);
+  totalString = String(ACPower,0).length()
+  lcd.print(String(ACPower, 3+((-1)*(totalString-1))));
 }
 
-void preTransmission()                                                                                    /* transmission program when triggered*/
+void preTransmission()                                                                                    
 {
-          digitalWrite(MAX485_RE, 1);                                                                     /* put RE Pin to high*/
-          digitalWrite(MAX485_DE, 1);                                                                     /* put DE Pin to high*/
-          delay(1);                                                                                       // When both RE and DE Pin are high, converter is allow to transmit communication
+          digitalWrite(MAX485_RE, 1);                                                                    
+          digitalWrite(MAX485_DE, 1);                                                                    
+          delay(1);               
 }
 
-void postTransmission()                                                                                   /* Reception program when triggered*/
-{
-          delay(3);                                                                                       // When both RE and DE Pin are low, converter is allow to receive communication
-          digitalWrite(MAX485_RE, 0);                                                                     /* put RE Pin to low*/
-          digitalWrite(MAX485_DE, 0);                                                                     /* put DE Pin to low*/
+void postTransmission()                                                                                  
+          delay(3);                                                                                       
+          digitalWrite(MAX485_RE, 0);                                                                     
 }
 
 void DC(){
@@ -75,6 +107,7 @@ void DC(){
   Serial.println("DC A = " + String(DCCurrent));
   Serial.println("DC P = " + String(DCPower));
   Serial.println("DC E = " + String(DCEnergy));
+
   
 }
 
@@ -118,7 +151,6 @@ void Halaman4(){
   lcd.print("D1:       D4:");
   lcd.setCursor(0,3);
   lcd.print("D1:       D4:");
-  
 }
 
 void Halaman3(){
@@ -133,18 +165,52 @@ void Halaman3(){
   
 }
 
-void updateData(){
-  
+void LocalTime() {
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("Failed to obtain time");
+  } else {
+    if (timeinfo.tm_hour < 10) {
+      jam = "0" + String(timeinfo.tm_hour) + ":";
+    } else {
+      jam = String(timeinfo.tm_hour) + ":";
+    }
+    if (timeinfo.tm_min < 10) {
+      jam += "0" + String(timeinfo.tm_min) + ":";
+    } else {
+      jam += String(timeinfo.tm_min) + ":";
+    }
+    if (timeinfo.tm_sec < 10) {
+      jam += "0" + String(timeinfo.tm_sec);
+    } else {
+      jam += String(timeinfo.tm_sec);
+    }
+  }
 }
 
 void setup(){
   Serial.begin(9600);
   PZEMDC.begin(9600,SWSERIAL_8N2,2,14);
 
+  Blynk.begin(BLYNK_AUTH_TOKEN,ssid, pass);
+
   pinMode(MAX485_RE,OUTPUT);
   pinMode(MAX485_DE,OUTPUT);
   digitalWrite(MAX485_RE,0);
   digitalWrite(MAX485_DE,0);
+
+  //take time
+  while (!getTime) {
+    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+    struct tm timeinfo;
+    if (!getLocalTime(&timeinfo)) {} 
+    else {
+      Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+      jam = String(timeinfo.tm_hour) + ":" + String(timeinfo.tm_min) + ":" + String(timeinfo.tm_sec);
+      getTime = 1;
+    }
+    delay(500);
+  }
 
   node.preTransmission(preTransmission);
   node.postTransmission(postTransmission);
@@ -158,10 +224,13 @@ void setup(){
   lcd.clear();
   delay(100);
   Halaman1();
+  
   timer=millis();
+  clockTimer=millis();
 }
 
 void loop (){
+  Blynk.run();
   if(digitalRead(15)==HIGH){
     delay(130);
     if(digitalRead(15)==HIGH){
@@ -189,6 +258,9 @@ void loop (){
     AC();
     DC();
     timer=millis();
-  
   }
+  if(millis()-clockTimer>=1000){
+    LocalTime();
+    clockTimer=millis();
+  } 
 }
