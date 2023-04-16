@@ -46,6 +46,9 @@ const int daylightOffset_sec = 0;
 char ssid[]= "s";
 char pass[]= "11111111";
 
+//var for power
+double WeekDataAC[6];
+
 void AC(){
   ACVoltage = pzem.voltage();
   ACCurrent = pzem.current();
@@ -168,7 +171,7 @@ void Halaman1(){
   lcd.print("I:     A COS :");
 
   lcd.setCursor(0,3);
-  lcd.print("P:     W T: 14:15:07");
+  lcd.print("P:     W T:");
   
 }
 
@@ -312,6 +315,19 @@ void loop (){
   }
   if(millis()-clockTimer>=1000){
     LocalTime();
+
+    //if(timeinfo.tm_hour==5) && (timeinfo.tm_min>=0){
+      //reset all sensor
+    //}
+
+    //update time at lcd
+    for (int i=12; i<=19; i++){
+      lcd.setCursor(i,3);
+      lcd.print(" ");
+    }
+    lcd.setCursor(12,3);
+    lcd.print(jam);
+    
     clockTimer=millis();
   } 
 }
