@@ -75,7 +75,7 @@ void AC() {
       lcd.print(" ");
     }
     lcd.setCursor(2, 1);
-    lcd.print(String(ACVoltage, 2));
+    lcd.print(String(ACVoltage, 1));
     uint8_t totalString = String(ACCurrent, 0).length();
     lcd.setCursor(2, 2);
     lcd.print(String(ACCurrent, 3 + ((-1) * (totalString - 1))));
@@ -140,21 +140,29 @@ void DC() {
 
   if (page == 2) {
     for (int i = 2; i <= 6 ; i++) {
+      lcd.setCursor(i, 0);
+      lcd.print(" ");
       lcd.setCursor(i, 1);
       lcd.print(" ");
       lcd.setCursor(i, 2);
       lcd.print(" ");
-      lcd.setCursor(i, 3);
-      lcd.print(" ");
+      if(i<=5){
+        lcd.setCursor(i,3);
+        lcd.print(" ");
+      }
     }
-    lcd.setCursor(2, 1);
-    lcd.print(String(DCVoltage, 2));
+    lcd.setCursor(2, 0);
+    lcd.print(String(DCVoltage, 1));
     uint8_t totalString = String(DCCurrent, 0).length();
-    lcd.setCursor(2, 2);
+    lcd.setCursor(2, 1);
     lcd.print(String(DCCurrent, 3 + ((-1) * (totalString - 1))));
-    lcd.setCursor(2, 3);
+    lcd.setCursor(2, 2);
     totalString = String(DCPower, 0).length();
     lcd.print(String(DCPower, 3 + ((-1) * (totalString - 1))));
+    lcd.setCursor(2,3);
+    totalString = String(DCEnergy, 0).length();
+    lcd.print(String(DCEnergy, 2 + ((-1) * (totalString - 1))));
+    
   }
   else if (page == 3) {
     for (int i = 9; i <= 16; i++) {
@@ -192,7 +200,7 @@ void Halaman2() {
   lcd.print("P:     W  SOC:     %");
 
   lcd.setCursor(0, 3);
-  lcd.print("D:    kWh Y :    KWh");
+  lcd.print("D:    KWh Y :    KWh");
 
 }
 
