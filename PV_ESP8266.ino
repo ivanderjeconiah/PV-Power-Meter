@@ -48,7 +48,7 @@ char ssid[] = "s";
 char pass[] = "11111111";
 
 //var for energy
-double WeekDataDC[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+double WeekDataDC[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 uint8_t indexDay=0;
 
 void AC() {
@@ -214,9 +214,9 @@ void Halaman4() {
   lcd.setCursor(0, 1);
   lcd.print("D1:       D4:");
   lcd.setCursor(0, 2);
-  lcd.print("D1:       D4:");
+  lcd.print("D2:       D5:");
   lcd.setCursor(0, 3);
-  lcd.print("D1:       D4:");
+  lcd.print("D3:       D6:");
 }
 
 void Halaman3() {
@@ -263,11 +263,10 @@ void resetData() {
   }
 
   //update array data
-  WeekDataDC[indexDay]=DCEnergy;
-  indexDay++;
-  if(indexDay>=6){
-    indexDay=0;
+  for (int i=1;i<=5;i++){
+    WeekDataDC[i]=WeekDataDC[i-1];
   }
+  WeekDataDC[0]=DCEnergy;
 
   //reset AC SENSOR
   //pzem.resetEnergy();
@@ -359,6 +358,12 @@ void loop () {
       }
       else if (page == 4) {
         Halaman4();
+        for(int i=0; i <=3;i++){
+          lcd.setCursor(3,i+1);
+          lcd.print(WeekDataDC[i]);
+          lcd.setCursor(13,i+1);
+          lcd.print(WeekDataDC[i+3]);
+        }
       }
     }
   }
