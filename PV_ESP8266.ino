@@ -38,6 +38,9 @@ uint8_t page=1;
 String jam;
 long int clockTimer;
 bool getTime=false;
+const char *ntpServer = "pool.ntp.org";
+const long gmtOffset_sec = 25200;  
+const int daylightOffset_sec = 0;
 
 //var for BLYNK
 char ssid[]= "s";
@@ -58,6 +61,7 @@ void AC(){
   Serial.println("AC F = " + String(ACFrequency));
   Serial.println("AC PF = " + String(cosPhi));
 
+  //update LCD's value
   for (int i=2; i<=6 ; i++) {
       lcd.setCursor(i,1);
       lcd.print(" ");
@@ -67,25 +71,25 @@ void AC(){
       lcd.print(" ");
   }
   lcd.setCursor(2,1);
-  lcd.print(String(ACVoltage,2);
-  uint8_t totalString = String(ACCurent,0).length()
+  lcd.print(String(ACVoltage,2));
+  uint8_t totalString = String(ACCurrent,0).length();
   lcd.setCursor(2,2);
-  lcd.print(String(ACCurrent,3+((-1)*(totalString-1)));
+  lcd.print(String(ACCurrent,3+((-1)*(totalString-1))));
   lcd.setCursor(2,3);
-  totalString = String(ACPower,0).length()
+  totalString = String(ACPower,0).length();
   lcd.print(String(ACPower, 3+((-1)*(totalString-1))));
 }
 
-void preTransmission()                                                                                    
-{
+void preTransmission(){
           digitalWrite(MAX485_RE, 1);                                                                    
           digitalWrite(MAX485_DE, 1);                                                                    
           delay(1);               
 }
 
-void postTransmission()                                                                                  
+void postTransmission(){                                                                             
           delay(3);                                                                                       
-          digitalWrite(MAX485_RE, 0);                                                                     
+          digitalWrite(MAX485_RE, 0);
+          digitalWrite(MAX485_DE, 0);                                                                     
 }
 
 void DC(){
