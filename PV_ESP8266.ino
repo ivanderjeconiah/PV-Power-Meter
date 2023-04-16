@@ -78,6 +78,25 @@ void AC(){
   lcd.setCursor(2,3);
   totalString = String(ACPower,0).length();
   lcd.print(String(ACPower, 3+((-1)*(totalString-1))));
+
+  for (int i=14; i<=17;i++){
+    lcd.setCursor(i,1);
+    lcd.print(" ");
+    lcd.setCursor(i,2);
+    lcd.print(" ");
+  }
+
+  lcd.setCursor(14,1);
+  lcd.print(String(ACFrequency,1));
+  lcd.setCursor(14,2);
+  lcd.print(String(cosPhi,1));
+
+  for(int i=9;i<=16; i++){
+    lcd.setCursor(i,1);
+    lcd.print(" ");
+  }
+  lcd.setCursor(9,1);
+  lcd.print(String(ACEnergy,2));
 }
 
 void preTransmission(){
@@ -112,7 +131,29 @@ void DC(){
   Serial.println("DC P = " + String(DCPower));
   Serial.println("DC E = " + String(DCEnergy));
 
-  
+  for (int i=2; i<=6 ; i++) {
+      lcd.setCursor(i,1);
+      lcd.print(" ");
+      lcd.setCursor(i,2);
+      lcd.print(" ");
+      lcd.setCursor(i,3);
+      lcd.print(" ");
+  }
+  lcd.setCursor(2,1);
+  lcd.print(String(DCVoltage,2));
+  uint8_t totalString = String(DCCurrent,0).length();
+  lcd.setCursor(2,2);
+  lcd.print(String(DCCurrent,3+((-1)*(totalString-1))));
+  lcd.setCursor(2,3);
+  totalString = String(DCPower,0).length();
+  lcd.print(String(DCPower, 3+((-1)*(totalString-1)))); 
+
+  for(int i=9;i<=16; i++){
+    lcd.setCursor(i,2);
+    lcd.print(" ");
+  }
+  lcd.setCursor(9,2);
+  lcd.print(String(DCEnergy,2));
 }
 
 void Halaman1(){
@@ -158,12 +199,12 @@ void Halaman4(){
 }
 
 void Halaman3(){
-  lcd.setCursor(0,0);
-  lcd.print("AC P TOT:        KWh");
+  lcd.setCursor(1,0);
+  lcd.print("ENERGY CALCACULATION");
   lcd.setCursor(0,1);
-  lcd.print("DC P TOT:        KWh");
+  lcd.print("AC P TOT:        KWh");
   lcd.setCursor(0,2);
-  lcd.print("RUPIAH:");
+  lcd.print("DC P TOT:        KWh");
   lcd.setCursor(0,3);
   lcd.print("STATUS: DISCHARGING");
   
@@ -196,8 +237,9 @@ void setup(){
   Serial.begin(9600);
   PZEMDC.begin(9600,SWSERIAL_8N2,2,14);
 
-  Blynk.begin(BLYNK_AUTH_TOKEN,ssid, pass);
+  //Blynk.begin(BLYNK_AUTH_TOKEN,ssid, pass);
 
+  WiFi.begin(ssid,pass);
   pinMode(MAX485_RE,OUTPUT);
   pinMode(MAX485_DE,OUTPUT);
   digitalWrite(MAX485_RE,0);
@@ -207,14 +249,19 @@ void setup(){
   while (!getTime) {
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
     struct tm timeinfo;
-    if (!getLocalTime(&timeinfo)) {} 
+    if (!getLocalTime(&timeinfo)) {
+    } 
     else {
-      Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+      //Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
       jam = String(timeinfo.tm_hour) + ":" + String(timeinfo.tm_min) + ":" + String(timeinfo.tm_sec);
+      Serial.println(jam);
       getTime = 1;
     }
     delay(500);
   }
+
+  //connect blynk
+  Blynk.config(BLYNK_AUTH_TOKEN);
 
   node.preTransmission(preTransmission);
   node.postTransmission(postTransmission);
