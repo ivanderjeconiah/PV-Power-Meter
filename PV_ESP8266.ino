@@ -358,11 +358,11 @@ void loop () {
       }
       else if (page == 4) {
         Halaman4();
-        for(int i=0; i <=3;i++){
+        for(int i=0; i <=2;i++){
           lcd.setCursor(3,i+1);
-          lcd.print(WeekDataDC[i]);
+          lcd.print(String(WeekDataDC[i],2));
           lcd.setCursor(13,i+1);
-          lcd.print(WeekDataDC[i+3]);
+          lcd.print(String(WeekDataDC[i+3],2));
         }
       }
     }
