@@ -47,8 +47,9 @@ struct tm timeinfo;
 char ssid[] = "s";
 char pass[] = "11111111";
 
-//var for power
-double WeekDataAC[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+//var for energy
+double WeekDataDC[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+uint8_t indexDay=0;
 
 void AC() {
   ACVoltage = pzem.voltage();
@@ -261,8 +262,15 @@ void resetData() {
     lcd.print(String(DCEnergyY, 2 + ((-1) * ((String(DCEnergyY, 0).length()) - 1))));
   }
 
+  //update array data
+  WeekDataDC[indexDay]=DCEnergy;
+  indexDay++;
+  if(indexDay>=6){
+    indexDay=0;
+  }
+
   //reset AC SENSOR
-  pzem.resetEnergy();
+  //pzem.resetEnergy();
   
   //reset DC SENSOR
   uint16_t u16CRC = 0xFFFF;               
@@ -343,11 +351,11 @@ void loop () {
       }
       else if (page == 2) {
         Halaman2();
+        lcd.setCursor(13, 3);
+        lcd.print(String(DCEnergyY, 2 + ((-1) * ((String(DCEnergyY, 0).length()) - 1))));
       }
       else if (page == 3) {
         Halaman3();
-        lcd.setCursor(13, 3);
-        lcd.print(String(DCEnergyY, 2 + ((-1) * ((String(DCEnergyY, 0).length()) - 1))));
       }
       else if (page == 4) {
         Halaman4();
