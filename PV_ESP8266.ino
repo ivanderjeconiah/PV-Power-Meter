@@ -26,7 +26,7 @@ float ACVoltage, ACCurrent, ACPower, ACFrequency, ACEnergy, cosPhi;
 //var for DC
 static uint8_t pzemSlaveAddr = 0x01;
 static uint16_t NewShuntAddr = 0x0000;
-float DCVoltage, DCCurrent, DCPower, DCEnergy;
+float DCVoltage, DCCurrent, DCPower, DCEnergy, DCEnergyY;
 
 //var for reading
 long int timer;
@@ -41,13 +41,14 @@ bool getTime = false;
 const char *ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = 25200;
 const int daylightOffset_sec = 0;
+struct tm timeinfo;
 
 //var for BLYNK
 char ssid[] = "s";
 char pass[] = "11111111";
 
 //var for power
-double WeekDataAC[6];
+double WeekDataAC[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
 void AC() {
   ACVoltage = pzem.voltage();
@@ -74,6 +75,14 @@ void AC() {
       lcd.setCursor(i, 3);
       lcd.print(" ");
     }
+
+    for (int i = 14; i <= 17; i++) {
+      lcd.setCursor(i, 1);
+      lcd.print(" ");
+      lcd.setCursor(i, 2);
+      lcd.print(" ");
+    }
+
     lcd.setCursor(2, 1);
     lcd.print(String(ACVoltage, 1));
     uint8_t totalString = String(ACCurrent, 0).length();
@@ -82,13 +91,6 @@ void AC() {
     lcd.setCursor(2, 3);
     totalString = String(ACPower, 0).length();
     lcd.print(String(ACPower, 3 + ((-1) * (totalString - 1))));
-
-    for (int i = 14; i <= 17; i++) {
-      lcd.setCursor(i, 1);
-      lcd.print(" ");
-      lcd.setCursor(i, 2);
-      lcd.print(" ");
-    }
 
     lcd.setCursor(14, 1);
     lcd.print(String(ACFrequency, 1));
@@ -146,11 +148,12 @@ void DC() {
       lcd.print(" ");
       lcd.setCursor(i, 2);
       lcd.print(" ");
-      if(i<=5){
-        lcd.setCursor(i,3);
+      if (i <= 5) {
+        lcd.setCursor(i, 3);
         lcd.print(" ");
       }
     }
+
     lcd.setCursor(2, 0);
     lcd.print(String(DCVoltage, 1));
     uint8_t totalString = String(DCCurrent, 0).length();
@@ -159,10 +162,10 @@ void DC() {
     lcd.setCursor(2, 2);
     totalString = String(DCPower, 0).length();
     lcd.print(String(DCPower, 3 + ((-1) * (totalString - 1))));
-    lcd.setCursor(2,3);
+    lcd.setCursor(2, 3);
     totalString = String(DCEnergy, 0).length();
     lcd.print(String(DCEnergy, 2 + ((-1) * (totalString - 1))));
-    
+
   }
   else if (page == 3) {
     for (int i = 9; i <= 16; i++) {
@@ -217,7 +220,7 @@ void Halaman4() {
 
 void Halaman3() {
   lcd.setCursor(1, 0);
-  lcd.print("ENERGY CALCACULATION");
+  lcd.print("ENERGY CALCULATION");
   lcd.setCursor(0, 1);
   lcd.print("AC P TOT:        KWh");
   lcd.setCursor(0, 2);
@@ -228,7 +231,6 @@ void Halaman3() {
 }
 
 void LocalTime() {
-  struct tm timeinfo;
   if (!getLocalTime(&timeinfo)) {
     Serial.println("Failed to obtain time");
   } else {
@@ -250,6 +252,34 @@ void LocalTime() {
   }
 }
 
+void resetData() {
+  DCEnergyY = DCEnergy;
+  if (page == 3) {
+    lcd.setCursor(13, 3);
+    lcd.print("    ");
+    lcd.setCursor(13, 3);
+    lcd.print(String(DCEnergyY, 2 + ((-1) * ((String(DCEnergyY, 0).length()) - 1))));
+  }
+
+  //reset AC SENSOR
+  pzem.resetEnergy();
+  
+  //reset DC SENSOR
+  uint16_t u16CRC = 0xFFFF;               
+  static uint8_t resetCommand = 0x42;
+  uint8_t slaveAddr = pzemSlaveAddr;
+  u16CRC = crc16_update(u16CRC, slaveAddr);
+  u16CRC = crc16_update(u16CRC, resetCommand);
+  preTransmission();                                
+  PZEMDC.write(slaveAddr);                      
+  PZEMDC.write(resetCommand);                   
+  PZEMDC.write(lowByte(u16CRC));                
+  PZEMDC.write(highByte(u16CRC));  
+  delay(10);
+  postTransmission();                              
+  delay(10);
+}
+
 void setup() {
   Serial.begin(9600);
   PZEMDC.begin(9600, SWSERIAL_8N2, 2, 14);
@@ -265,7 +295,7 @@ void setup() {
   //take time
   while (!getTime) {
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-    struct tm timeinfo;
+
     if (!getLocalTime(&timeinfo)) {
     }
     else {
@@ -316,12 +346,15 @@ void loop () {
       }
       else if (page == 3) {
         Halaman3();
+        lcd.setCursor(13, 3);
+        lcd.print(String(DCEnergyY, 2 + ((-1) * ((String(DCEnergyY, 0).length()) - 1))));
       }
       else if (page == 4) {
         Halaman4();
       }
     }
   }
+  delay(50);
   if (millis() - timer >= 1500) {
     AC();
     DC();
@@ -330,9 +363,9 @@ void loop () {
   if (millis() - clockTimer >= 1000) {
     LocalTime();
 
-    //if(timeinfo.tm_hour==5) && (timeinfo.tm_min>=0){
-    //reset all sensor
-    //}
+    if ((timeinfo.tm_hour == 5) && (timeinfo.tm_min >= 0)) {
+      resetData();
+    }
 
     //update time at lcd
     if (page == 1) {
