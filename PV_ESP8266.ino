@@ -26,7 +26,8 @@ float ACVoltage, ACCurrent, ACPower, ACFrequency, ACEnergy, cosPhi;
 //var for DC
 static uint8_t pzemSlaveAddr = 0x01;
 static uint16_t NewShuntAddr = 0x0000;
-float DCVoltage, DCCurrent, DCPower, DCEnergy, DCEnergyY;
+float DCVoltage, DCCurrent, DCPower, DCEnergy, DCEnergyY, Psh, PV, SOC;
+bool BatStat = false;
 
 //var for reading
 long int timer;
@@ -49,7 +50,8 @@ char pass[] = "11111111";
 
 //var for energy
 double WeekDataDC[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-uint8_t indexDay=0;
+uint8_t indexDay = 0;
+double ACTot, DCTot;
 
 void AC() {
   ACVoltage = pzem.voltage();
@@ -104,7 +106,7 @@ void AC() {
       lcd.print(" ");
     }
     lcd.setCursor(9, 1);
-    lcd.print(String(ACEnergy, 2));
+    lcd.print(String(ACTot, 2));
   }
 }
 
@@ -133,6 +135,18 @@ void DC() {
 
     tempDouble = (node.getResponseBuffer(0x0005) << 16) + node.getResponseBuffer(0x0004);
     DCEnergy = tempDouble;
+
+    Psh = DCEnergy / 2550.0;
+    PV = DCCurrent / 2550.0;
+    SOC = ((DCVoltage - 22) / 5.6) * 100;
+
+    if(SOC>100){
+      BatStat=true;
+    }
+    else {
+      BatStat=false;
+    }
+
   }
 
   Serial.println("DC V = " + String(DCVoltage));
@@ -155,6 +169,13 @@ void DC() {
       }
     }
 
+    lcd.setCursor(14, 0);
+    lcd.print("     ");
+    lcd.setCursor(14, 1);
+    lcd.print("     ");
+    lcd.setCursor(14, 2);
+    lcd.print("     ");
+
     lcd.setCursor(2, 0);
     lcd.print(String(DCVoltage, 1));
     uint8_t totalString = String(DCCurrent, 0).length();
@@ -167,6 +188,13 @@ void DC() {
     totalString = String(DCEnergy, 0).length();
     lcd.print(String(DCEnergy, 2 + ((-1) * (totalString - 1))));
 
+    lcd.setCursor(14, 0);
+    lcd.print(String(Psh, 1));
+    lcd.setCursor(14, 1);
+    lcd.print(String(PV, 1));
+    lcd.setCursor(14, 2);
+    lcd.print(String(SOC, 0));
+
   }
   else if (page == 3) {
     for (int i = 9; i <= 16; i++) {
@@ -174,7 +202,15 @@ void DC() {
       lcd.print(" ");
     }
     lcd.setCursor(9, 2);
-    lcd.print(String(DCEnergy, 2));
+    lcd.print(String(DCTot, 2));
+
+    lcd.setCursor(8, 3);
+    if (BatStat) {
+      lcd.print("CHARGING");
+    }
+    else {
+      lcd.print("DISCHARGING");
+    }
   }
 }
 
@@ -227,7 +263,7 @@ void Halaman3() {
   lcd.setCursor(0, 2);
   lcd.print("DC P TOT:        KWh");
   lcd.setCursor(0, 3);
-  lcd.print("STATUS: DISCHARGING");
+  lcd.print("STATUS: ");
 
 }
 
@@ -263,27 +299,30 @@ void resetData() {
   }
 
   //update array data
-  for (int i=1;i<=5;i++){
-    WeekDataDC[i]=WeekDataDC[i-1];
+  for (int i = 1; i <= 5; i++) {
+    WeekDataDC[i] = WeekDataDC[i - 1];
   }
-  WeekDataDC[0]=DCEnergy;
+  WeekDataDC[0] = DCEnergy;
+
+  ACTot = ACTot + ACEnergy;
+  DCTot = DCTot + DCEnergy;
 
   //reset AC SENSOR
-  //pzem.resetEnergy();
-  
+  pzem.resetEnergy();
+
   //reset DC SENSOR
-  uint16_t u16CRC = 0xFFFF;               
+  uint16_t u16CRC = 0xFFFF;
   static uint8_t resetCommand = 0x42;
   uint8_t slaveAddr = pzemSlaveAddr;
   u16CRC = crc16_update(u16CRC, slaveAddr);
   u16CRC = crc16_update(u16CRC, resetCommand);
-  preTransmission();                                
-  PZEMDC.write(slaveAddr);                      
-  PZEMDC.write(resetCommand);                   
-  PZEMDC.write(lowByte(u16CRC));                
-  PZEMDC.write(highByte(u16CRC));  
+  preTransmission();
+  PZEMDC.write(slaveAddr);
+  PZEMDC.write(resetCommand);
+  PZEMDC.write(lowByte(u16CRC));
+  PZEMDC.write(highByte(u16CRC));
   delay(10);
-  postTransmission();                              
+  postTransmission();
   delay(10);
 }
 
@@ -330,6 +369,9 @@ void setup() {
   delay(100);
   Halaman1();
 
+  ACTot = 0;
+  DCTot = 0;
+
   timer = millis();
   clockTimer = millis();
 }
@@ -355,14 +397,21 @@ void loop () {
       }
       else if (page == 3) {
         Halaman3();
+        lcd.setCursor(8, 3);
+        if (BatStat) {
+          lcd.print("CHARGING");
+        }
+        else {
+          lcd.print("DISCHARGING");
+        }
       }
       else if (page == 4) {
         Halaman4();
-        for(int i=0; i <=2;i++){
-          lcd.setCursor(3,i+1);
-          lcd.print(String(WeekDataDC[i],2));
-          lcd.setCursor(13,i+1);
-          lcd.print(String(WeekDataDC[i+3],2));
+        for (int i = 0; i <= 2; i++) {
+          lcd.setCursor(3, i + 1);
+          lcd.print(String(WeekDataDC[i], 2));
+          lcd.setCursor(13, i + 1);
+          lcd.print(String(WeekDataDC[i + 3], 2));
         }
       }
     }
