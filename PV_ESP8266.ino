@@ -199,7 +199,7 @@ void DC() {
     lcd.setCursor(14, 1);
     lcd.print(String(PV, 1));
     lcd.setCursor(14, 2);
-    lcd.print(String(constrain(SOC,0,100), 0));
+    lcd.print(String(SOC, 0));
 
   }
   else if (page == 3) {
