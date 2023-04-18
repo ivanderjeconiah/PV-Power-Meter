@@ -71,33 +71,33 @@ void AC() {
   //update LCD's value
   if (page == 1) {
     for (int i = 2; i <= 6 ; i++) {
+      lcd.setCursor(i, 0);
+      lcd.print(" ");
       lcd.setCursor(i, 1);
       lcd.print(" ");
       lcd.setCursor(i, 2);
-      lcd.print(" ");
-      lcd.setCursor(i, 3);
       lcd.print(" ");
     }
 
     for (int i = 14; i <= 17; i++) {
-      lcd.setCursor(i, 1);
+      lcd.setCursor(i, 0);
       lcd.print(" ");
-      lcd.setCursor(i, 2);
+      lcd.setCursor(i, 1);
       lcd.print(" ");
     }
 
-    lcd.setCursor(2, 1);
+    lcd.setCursor(2, 0);
     lcd.print(String(ACVoltage, 1));
     uint8_t totalString = String(ACCurrent, 0).length();
-    lcd.setCursor(2, 2);
+    lcd.setCursor(2, 1);
     lcd.print(String(ACCurrent, 3 + ((-1) * (totalString - 1))));
-    lcd.setCursor(2, 3);
+    lcd.setCursor(2, 2);
     totalString = String(ACPower, 0).length();
     lcd.print(String(ACPower, 3 + ((-1) * (totalString - 1))));
 
-    lcd.setCursor(14, 1);
+    lcd.setCursor(14, 0);
     lcd.print(String(ACFrequency, 1));
-    lcd.setCursor(14, 2);
+    lcd.setCursor(14, 1);
     lcd.print(String(cosPhi, 1));
   }
   else if (page == 3) {
@@ -294,7 +294,7 @@ void LocalTime() {
   }
 }
 
-void updateBlynk(){ //////////////////////////////////////update di sini
+void updateBlynk(){
   Blynk.virtualWrite(V0, ACVoltage); // contoh aj
 }
 
@@ -348,7 +348,7 @@ void setup() {
   PZEMDC.begin(9600, SWSERIAL_8N2, 2, 14);
 
   //Blynk.begin(BLYNK_AUTH_TOKEN,ssid, pass);
-
+  Serial.println("CONNECTING..");
   WiFi.begin(ssid, pass);
   pinMode(MAX485_RE, OUTPUT);
   pinMode(MAX485_DE, OUTPUT);
@@ -463,10 +463,10 @@ void loop () {
     //update time at lcd
     if (page == 1) {
       for (int i = 12; i <= 19; i++) {
-        lcd.setCursor(i, 3);
+        lcd.setCursor(i, 2);
         lcd.print(" ");
       }
-      lcd.setCursor(12, 3);
+      lcd.setCursor(12, 2);
       lcd.print(jam);
     }
     clockTimer = millis();
