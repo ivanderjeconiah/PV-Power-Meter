@@ -94,11 +94,17 @@ void AC() {
     lcd.setCursor(2, 2);
     totalString = String(ACPower, 0).length();
     lcd.print(String(ACPower, 3 + ((-1) * (totalString - 1))));
+    lcd.setCursor(2, 3);
+    lcd.print("    ");
+    lcd.setCursor(2,3);
+    totalString = String(DCEnergy, 0).length();
+    lcd.print(String(DCEnergy, 2 + ((-1) * (totalString - 1))));
 
     lcd.setCursor(14, 0);
     lcd.print(String(ACFrequency, 1));
     lcd.setCursor(14, 1);
     lcd.print(String(cosPhi, 1));
+    
   }
   else if (page == 3) {
     for (int i = 9; i <= 16; i++) {
@@ -193,7 +199,7 @@ void DC() {
     lcd.setCursor(14, 1);
     lcd.print(String(PV, 1));
     lcd.setCursor(14, 2);
-    lcd.print(String(SOC, 0));
+    lcd.print(String(constrain(SOC,0,100), 0));
 
   }
   else if (page == 3) {
@@ -385,7 +391,8 @@ void setup() {
   lcd.clear();
   delay(100);
   Halaman1();
-
+  lcd.setCursor(13, 3);
+  lcd.print(String(ACEnergyY, 2 + ((-1) * ((String(ACEnergyY, 0).length()) - 1))));
   ACTot = 0;
   DCTot = 0;
 
