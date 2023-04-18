@@ -21,7 +21,7 @@ SoftwareSerial PZEMDC;
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 //var AC sensor
-float ACVoltage, ACCurrent, ACPower, ACFrequency, ACEnergy, cosPhi;
+float ACVoltage, ACCurrent, ACPower, ACFrequency, ACEnergy, cosPhi, ACEnergyY;
 
 //var for DC
 static uint8_t pzemSlaveAddr = 0x01;
@@ -215,17 +215,17 @@ void DC() {
 }
 
 void Halaman1() {
-  lcd.setCursor(4, 0);
-  lcd.print("AC MONITORING");
-
-  lcd.setCursor(0, 1);
+  lcd.setCursor(0, 0);
   lcd.print("V:     V FREQ:    Hz");
 
-  lcd.setCursor(0, 2);
+  lcd.setCursor(0, 1);
   lcd.print("I:     A COS :");
 
-  lcd.setCursor(0, 3);
+  lcd.setCursor(0, 2);
   lcd.print("P:     W T:");
+  
+  lcd.setCursor(0, 3);
+  lcd.print("D:    KWh Y :    KWh");
 
 }
 
@@ -244,6 +244,18 @@ void Halaman2() {
 
 }
 
+void Halaman3() {
+  lcd.setCursor(1, 0);
+  lcd.print("ENERGY CALCULATION");
+  lcd.setCursor(0, 1);
+  lcd.print("AC P TOT:        KWh");
+  lcd.setCursor(0, 2);
+  lcd.print("DC P TOT:        KWh");
+  lcd.setCursor(0, 3);
+  lcd.print("STATUS: ");
+
+}
+
 void Halaman4() {
   lcd.setCursor(0, 0);
   lcd.print("RECORD KWh 1 MINGGU");
@@ -255,16 +267,9 @@ void Halaman4() {
   lcd.print("D3:       D6:");
 }
 
-void Halaman3() {
-  lcd.setCursor(1, 0);
-  lcd.print("ENERGY CALCULATION");
-  lcd.setCursor(0, 1);
-  lcd.print("AC P TOT:        KWh");
-  lcd.setCursor(0, 2);
-  lcd.print("DC P TOT:        KWh");
-  lcd.setCursor(0, 3);
-  lcd.print("STATUS: ");
-
+void Halaman5() {
+  lcd.setCursor(7,1);
+  lcd.print("RESET!");
 }
 
 void LocalTime() {
@@ -289,13 +294,25 @@ void LocalTime() {
   }
 }
 
+void updateBlynk(){ //////////////////////////////////////update di sini
+  Blynk.virtualWrite(V0, ACVoltage); // contoh aj
+}
+
 void resetData() {
   DCEnergyY = DCEnergy;
+  ACEnergyY = ACEnergy;
   if (page == 3) {
     lcd.setCursor(13, 3);
     lcd.print("    ");
     lcd.setCursor(13, 3);
     lcd.print(String(DCEnergyY, 2 + ((-1) * ((String(DCEnergyY, 0).length()) - 1))));
+  }
+
+  else if (page == 1) {
+    lcd.setCursor(13, 3);
+    lcd.print("    ");
+    lcd.setCursor(13, 3);
+    lcd.print(String(ACEnergyY, 2 + ((-1) * ((String(ACEnergyY, 0).length()) - 1))));
   }
 
   //update array data
@@ -378,6 +395,15 @@ void setup() {
 
 void loop () {
   Blynk.run();
+  if (analogRead(A0) >=1000){
+    delay(130);
+    if((analogRead(A0)>=1000) && (page==5)){
+      Serial.println("BYEEE!!!!");
+      delay(100);
+      ESP.restart();
+    }
+  }
+  
   if (digitalRead(15) == HIGH) {
     delay(130);
     if (digitalRead(15) == HIGH) {
@@ -389,6 +415,8 @@ void loop () {
       lcd.clear();
       if (page == 1) {
         Halaman1();
+        lcd.setCursor(13, 3);
+        lcd.print(String(ACEnergyY, 2 + ((-1) * ((String(ACEnergyY, 0).length()) - 1))));
       }
       else if (page == 2) {
         Halaman2();
@@ -413,6 +441,9 @@ void loop () {
           lcd.setCursor(13, i + 1);
           lcd.print(String(WeekDataDC[i + 3], 2));
         }
+      }
+      else if (page==5){
+        Halaman5();
       }
     }
   }
@@ -440,4 +471,6 @@ void loop () {
     }
     clockTimer = millis();
   }
+
+  updateBlynk();
 }
