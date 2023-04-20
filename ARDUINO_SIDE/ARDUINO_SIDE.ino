@@ -40,7 +40,10 @@ const float RL10=50;
 float lux;
 
 //var for AC Sensor
-float ACvoltage,ACcurrent,ACpower;
+float ACvoltage,ACcurrent,ACpower,ACEnergy;
+
+//SOC var
+float SOC=0.0;
 
 void readVoltage1(){
   adcValue = analogRead(VoltageSensor1);
@@ -70,7 +73,7 @@ void readCurrent(){
 }
 
 void sendDat(){
-  data=String(inVoltage1)+" "+String(Current)+" "+String(pvPow)+" "+String(inVoltage2)+" "+String(lux)+" "+String(ACvoltage)+" "+String(ACcurrent)+" "+String(ACpower)+"=";
+  data=String(inVoltage1)+" "+String(Current)+" "+String(pvPow)+" "+String(SOC)+" "+String(lux)+" "+String(ACvoltage)+" "+String(ACcurrent)+" "+String(ACpower)+" "+String(ACEnergy)+"=";
   Serial.println(data);
   data.getBytes(buf,data.length()+1);
   ESPCon.write(buf, data.length());
@@ -89,6 +92,7 @@ void readACSensor(){
   ACvoltage=pzem.voltage();
   ACcurrent=pzem.current();
   ACpower=pzem.power();
+  ACEnergy=pzem.energy();
 
   Serial.print("AC Voltage: ");
   Serial.println(ACvoltage);
@@ -96,6 +100,14 @@ void readACSensor(){
   Serial.println(ACcurrent);
   Serial.print("AC Power: ");
   Serial.println(ACpower);  
+  Serial.print("AC Energy: ");
+  Serial.println(ACEnergy);  
+}
+
+void SOC_calculate(){
+  SOC = (inVoltage2-10.5) /(12.6-10.5)*100.0;
+  SOC = constrain (SOC,0,100);
+  Serial.println(SOC);
 }
 
 void setup(){
@@ -103,12 +115,14 @@ void setup(){
 }
 
 void loop(){
+  if(
   readVoltage1();
   readCurrent();
   pvPow= inVoltage1*Current;
   readVoltage2();
+  SOC_calculate();
   readLux();
   readACSensor();
   sendDat();
-  delay(1000);
+
 }
