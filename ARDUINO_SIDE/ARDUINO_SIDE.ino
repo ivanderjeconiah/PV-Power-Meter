@@ -115,7 +115,6 @@ void setup(){
 }
 
 void loop(){
-  if(
   readVoltage1();
   readCurrent();
   pvPow= inVoltage1*Current;
@@ -124,5 +123,4 @@ void loop(){
   readLux();
   readACSensor();
   sendDat();
-
 }
