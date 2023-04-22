@@ -10,7 +10,7 @@
 
 #define BLYNK_TEMPLATE_ID "TMPLiy9Icizd"
 #define BLYNK_TEMPLATE_NAME "Power Meter"
-#define BLYNK_AUTH_TOKEN "H69ULqGnrCSkdx1wbz303k8IM4mABVOW"
+#define BLYNK_AUTH_TOKEN "5Yj8vfsMEMQDD2lW2DLNgGWBI6CoRdVc"
 
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
@@ -301,7 +301,27 @@ void LocalTime() {
 }
 
 void updateBlynk(){
-  Blynk.virtualWrite(V0, ACVoltage); // contoh aj
+  Blynk.virtualWrite(V0, DCVoltage); //1
+  Blynk.virtualWrite(V0, DCCurrent); //2
+  Blynk.virtualWrite(V0, DCPower);   //3
+  Blynk.virtualWrite(V0, DCTot);     //4
+  Blynk.virtualWrite(V0, Psh);       //5
+  Blynk.virtualWrite(V0, PV);        //6
+  Blynk.virtualWrite(V0, ACVoltage); //7
+  Blynk.virtualWrite(V0, ACCurrent); //8
+  Blynk.virtualWrite(V0, ACPower);   //9
+  Blynk.virtualWrite(V0, DCEnergy);  //10
+  // Blynk.virtualWrite(V0, RESET);  //11
+  Blynk.virtualWrite(V0, ACTot);     //12
+  Blynk.virtualWrite(V0, SOC);       //14
+  Blynk.virtualWrite(V0, DCEnergyY); //15
+  // Blynk.virtualWrite(V0, WeekDataDC[1]); //16
+  // Blynk.virtualWrite(V0, WeekDataDC[2]); //17
+  // Blynk.virtualWrite(V0, WeekDataDC[3]); //18  
+  // Blynk.virtualWrite(V0, WeekDataDC[4]); //19
+  // Blynk.virtualWrite(V0, WeekDataDC[5]); //20
+  Blynk.virtualWrite(V0, ACEnergy);     //21
+  Blynk.virtualWrite(V0, ACEnergyY);    //22
 }
 
 void resetData() {
