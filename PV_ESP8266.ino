@@ -96,7 +96,7 @@ void AC() {
     lcd.print(String(ACPower, 3 + ((-1) * (totalString - 1))));
     lcd.setCursor(2, 3);
     lcd.print("    ");
-    lcd.setCursor(2,3);
+    lcd.setCursor(2, 3);
     totalString = String(DCEnergy, 0).length();
     lcd.print(String(DCEnergy, 2 + ((-1) * (totalString - 1))));
 
@@ -104,7 +104,7 @@ void AC() {
     lcd.print(String(ACFrequency, 1));
     lcd.setCursor(14, 1);
     lcd.print(String(cosPhi, 1));
-    
+
   }
   else if (page == 3) {
     for (int i = 9; i <= 16; i++) {
@@ -146,11 +146,11 @@ void DC() {
     PV = DCCurrent / 2550.0;
     SOC = ((DCVoltage - 22) / 5.6) * 100;
 
-    if(SOC>100){
-      BatStat=true;
+    if (SOC > 100) {
+      BatStat = true;
     }
     else {
-      BatStat=false;
+      BatStat = false;
     }
 
   }
@@ -229,7 +229,7 @@ void Halaman1() {
 
   lcd.setCursor(0, 2);
   lcd.print("P:     W T:");
-  
+
   lcd.setCursor(0, 3);
   lcd.print("D:    KWh Y :    KWh");
 
@@ -274,7 +274,7 @@ void Halaman4() {
 }
 
 void Halaman5() {
-  lcd.setCursor(7,1);
+  lcd.setCursor(7, 1);
   lcd.print("RESET!");
 }
 
@@ -300,7 +300,7 @@ void LocalTime() {
   }
 }
 
-void updateBlynk(){
+void updateBlynk() {
   Blynk.virtualWrite(V0, DCVoltage); //1
   Blynk.virtualWrite(V0, DCCurrent); //2
   Blynk.virtualWrite(V0, DCPower);   //3
@@ -317,7 +317,7 @@ void updateBlynk(){
   Blynk.virtualWrite(V0, DCEnergyY); //15
   // Blynk.virtualWrite(V0, WeekDataDC[1]); //16
   // Blynk.virtualWrite(V0, WeekDataDC[2]); //17
-  // Blynk.virtualWrite(V0, WeekDataDC[3]); //18  
+  // Blynk.virtualWrite(V0, WeekDataDC[3]); //18
   // Blynk.virtualWrite(V0, WeekDataDC[4]); //19
   // Blynk.virtualWrite(V0, WeekDataDC[5]); //20
   Blynk.virtualWrite(V0, ACEnergy);     //21
@@ -367,6 +367,30 @@ void resetData() {
   delay(10);
   postTransmission();
   delay(10);
+}
+
+void resetSystem() {
+  //reset AC SENSOR
+  pzem.resetEnergy();
+
+  //reset DC SENSOR
+  uint16_t u16CRC = 0xFFFF;
+  static uint8_t resetCommand = 0x42;
+  uint8_t slaveAddr = pzemSlaveAddr;
+  u16CRC = crc16_update(u16CRC, slaveAddr);
+  u16CRC = crc16_update(u16CRC, resetCommand);
+  preTransmission();
+  PZEMDC.write(slaveAddr);
+  PZEMDC.write(resetCommand);
+  PZEMDC.write(lowByte(u16CRC));
+  PZEMDC.write(highByte(u16CRC));
+  delay(10);
+  postTransmission();
+  delay(10);
+
+  Serial.println("BYEEE!!!!");
+  delay(100);
+  ESP.restart();
 }
 
 void setup() {
@@ -422,15 +446,13 @@ void setup() {
 
 void loop () {
   Blynk.run();
-  if (analogRead(A0) >=1000){
+  if (analogRead(A0) >= 1000) {
     delay(130);
-    if((analogRead(A0)>=1000) && (page==5)){
-      Serial.println("BYEEE!!!!");
-      delay(100);
-      ESP.restart();
+    if ((analogRead(A0) >= 1000) && (page == 5)) {
+      resetSystem();
     }
   }
-  
+
   if (digitalRead(15) == HIGH) {
     delay(130);
     if (digitalRead(15) == HIGH) {
@@ -469,7 +491,7 @@ void loop () {
           lcd.print(String(WeekDataDC[i + 3], 2));
         }
       }
-      else if (page==5){
+      else if (page == 5) {
         Halaman5();
       }
     }
@@ -500,4 +522,11 @@ void loop () {
   }
 
   updateBlynk();
+}
+
+BLYNK_WRITE(V0) {
+  bool par = param.asInt();
+  if (par) {
+    resetSystem();
+  }
 }
