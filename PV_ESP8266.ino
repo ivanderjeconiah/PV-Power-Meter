@@ -10,7 +10,7 @@
 
 #define BLYNK_TEMPLATE_ID "TMPLiy9Icizd"
 #define BLYNK_TEMPLATE_NAME "Power Meter"
-#define BLYNK_AUTH_TOKEN "5Yj8vfsMEMQDD2lW2DLNgGWBI6CoRdVc"
+#define BLYNK_AUTH_TOKEN "H69ULqGnrCSkdx1wbz303k8IM4mABVOW"
 
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
@@ -45,13 +45,14 @@ const int daylightOffset_sec = 0;
 struct tm timeinfo;
 
 //var for BLYNK
-char ssid[] = "s";
-char pass[] = "11111111";
+char ssid[] = "Steven";
+char pass[] = "S14ntur1";
 
 //var for energy
 double WeekDataDC[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 uint8_t indexDay = 0;
 double ACTot, DCTot;
+bool reset=false;
 
 void AC() {
   ACVoltage = pzem.voltage();
@@ -301,27 +302,27 @@ void LocalTime() {
 }
 
 void updateBlynk() {
-  Blynk.virtualWrite(V0, DCVoltage); //1
-  Blynk.virtualWrite(V0, DCCurrent); //2
-  Blynk.virtualWrite(V0, DCPower);   //3
-  Blynk.virtualWrite(V0, DCTot);     //4
-  Blynk.virtualWrite(V0, Psh);       //5
-  Blynk.virtualWrite(V0, PV);        //6
-  Blynk.virtualWrite(V0, ACVoltage); //7
-  Blynk.virtualWrite(V0, ACCurrent); //8
-  Blynk.virtualWrite(V0, ACPower);   //9
-  Blynk.virtualWrite(V0, DCEnergy);  //10
-  // Blynk.virtualWrite(V0, RESET);  //11
-  Blynk.virtualWrite(V0, ACTot);     //12
-  Blynk.virtualWrite(V0, SOC);       //14
-  Blynk.virtualWrite(V0, DCEnergyY); //15
-  // Blynk.virtualWrite(V0, WeekDataDC[1]); //16
-  // Blynk.virtualWrite(V0, WeekDataDC[2]); //17
-  // Blynk.virtualWrite(V0, WeekDataDC[3]); //18
-  // Blynk.virtualWrite(V0, WeekDataDC[4]); //19
-  // Blynk.virtualWrite(V0, WeekDataDC[5]); //20
-  Blynk.virtualWrite(V0, ACEnergy);     //21
-  Blynk.virtualWrite(V0, ACEnergyY);    //22
+  Blynk.virtualWrite(V7, DCVoltage);  //1
+  Blynk.virtualWrite(V8, DCCurrent);  //2
+  Blynk.virtualWrite(V9, DCPower);    //3
+  Blynk.virtualWrite(V10, DCTot);     //4
+  Blynk.virtualWrite(V11, Psh);       //5
+  Blynk.virtualWrite(V12, PV);        //6
+  Blynk.virtualWrite(V13, ACVoltage); //7
+  Blynk.virtualWrite(V14, ACCurrent); //8
+  Blynk.virtualWrite(V15, ACPower);   //9
+  Blynk.virtualWrite(V16, String(DCEnergy,3));  //10
+  // Blynk.virtualWrite(V0, RESET);   //11
+  Blynk.virtualWrite(V18, ACTot);     //12
+  Blynk.virtualWrite(V19, SOC);       //14
+  Blynk.virtualWrite(V20, String(DCEnergyY,3)); //15
+  Blynk.virtualWrite(V21, WeekDataDC[1]); //16
+  Blynk.virtualWrite(V22, WeekDataDC[2]); //17
+  Blynk.virtualWrite(V23, WeekDataDC[3]); //18
+  Blynk.virtualWrite(V24, WeekDataDC[4]); //19
+  Blynk.virtualWrite(V25, WeekDataDC[5]); //20
+  Blynk.virtualWrite(V26, String(ACEnergy,3));     //21
+  Blynk.virtualWrite(V27, String(ACEnergyY,3));    //22
 }
 
 void resetData() {
@@ -505,10 +506,13 @@ void loop () {
   if (millis() - clockTimer >= 1000) {
     LocalTime();
 
-    if ((timeinfo.tm_hour == 5) && (timeinfo.tm_min >= 0)) {
+    if ((timeinfo.tm_hour == 5) && (timeinfo.tm_min >= 0) && (!reset)) {
       resetData();
+      reset=true;
     }
-
+    else {
+      reset=false;
+    }
     //update time at lcd
     if (page == 1) {
       for (int i = 12; i <= 19; i++) {
@@ -524,7 +528,7 @@ void loop () {
   updateBlynk();
 }
 
-BLYNK_WRITE(V0) {
+BLYNK_WRITE(V17) {
   bool par = param.asInt();
   if (par) {
     resetSystem();
