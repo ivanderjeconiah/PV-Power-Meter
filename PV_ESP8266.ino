@@ -51,7 +51,7 @@ char pass[] = "S14ntur1";
 //var for energy
 double WeekDataDC[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 uint8_t indexDay = 0;
-double ACTot, DCTot;
+double ACTot, DCTot,ACTOTDAY,DCTOTDAY;
 bool reset=false;
 
 void AC() {
@@ -59,8 +59,10 @@ void AC() {
   ACCurrent = pzem.current();
   ACPower = pzem.power();
   ACFrequency = pzem.frequency();
-  ACEnergy = pzem.energy();
+  ACTot = pzem.energy();
   cosPhi = pzem.pf();
+
+  ACEnergy=ACTot-ACTOTDAY;
 
   Serial.println("AC V = " + String(ACVoltage));
   Serial.println("AC A = " + String(ACCurrent));
@@ -112,8 +114,9 @@ void AC() {
       lcd.setCursor(i, 1);
       lcd.print(" ");
     }
+    uint8_t totalString = String(ACTot, 0).length();
     lcd.setCursor(9, 1);
-    lcd.print(String(ACTot, 2));
+    lcd.print(String(ACTot, 7-totalString));
   }
 }
 
@@ -141,8 +144,10 @@ void DC() {
     DCPower = tempDouble / 10.0;
 
     tempDouble = (node.getResponseBuffer(0x0005) << 16) + node.getResponseBuffer(0x0004);
-    DCEnergy = tempDouble;
+    DCTot = tempDouble;
 
+    DCEnergy=DCTot-DCTOTDAY;
+    
     Psh = DCEnergy / 2550.0;
     PV = DCCurrent / 2550.0;
     SOC = ((DCVoltage - 22) / 5.6) * 100;
@@ -208,8 +213,9 @@ void DC() {
       lcd.setCursor(i, 2);
       lcd.print(" ");
     }
+    uint8_t totalString = String(DCTot, 0).length();
     lcd.setCursor(9, 2);
-    lcd.print(String(DCTot, 2));
+    lcd.print(String(DCTot, 7-totalString));
 
     lcd.setCursor(8, 3);
     if (BatStat) {
@@ -305,24 +311,24 @@ void updateBlynk() {
   Blynk.virtualWrite(V7, DCVoltage);  //1
   Blynk.virtualWrite(V8, DCCurrent);  //2
   Blynk.virtualWrite(V9, DCPower);    //3
-  Blynk.virtualWrite(V10, DCTot);     //4
+  Blynk.virtualWrite(V10, String(DCTot,6));     //4
   Blynk.virtualWrite(V11, Psh);       //5
   Blynk.virtualWrite(V12, PV);        //6
   Blynk.virtualWrite(V13, ACVoltage); //7
   Blynk.virtualWrite(V14, ACCurrent); //8
   Blynk.virtualWrite(V15, ACPower);   //9
-  Blynk.virtualWrite(V16, String(DCEnergy,3));  //10
+  Blynk.virtualWrite(V16, String(DCEnergy,6));  //10
   // Blynk.virtualWrite(V0, RESET);   //11
   Blynk.virtualWrite(V18, ACTot);     //12
   Blynk.virtualWrite(V19, SOC);       //14
-  Blynk.virtualWrite(V20, String(DCEnergyY,3)); //15
-  Blynk.virtualWrite(V21, WeekDataDC[1]); //16
-  Blynk.virtualWrite(V22, WeekDataDC[2]); //17
-  Blynk.virtualWrite(V23, WeekDataDC[3]); //18
-  Blynk.virtualWrite(V24, WeekDataDC[4]); //19
-  Blynk.virtualWrite(V25, WeekDataDC[5]); //20
-  Blynk.virtualWrite(V26, String(ACEnergy,3));     //21
-  Blynk.virtualWrite(V27, String(ACEnergyY,3));    //22
+  Blynk.virtualWrite(V20, String(DCEnergyY,6)); //15
+  Blynk.virtualWrite(V21, String(WeekDataDC[1],6)); //16
+  Blynk.virtualWrite(V22, String(WeekDataDC[2],6)); //17
+  Blynk.virtualWrite(V23, String(WeekDataDC[3],6)); //18
+  Blynk.virtualWrite(V24, String(WeekDataDC[4],6)); //19
+  Blynk.virtualWrite(V25, String(WeekDataDC[5],6)); //20
+  Blynk.virtualWrite(V26, String(ACEnergy,6));     //21
+  Blynk.virtualWrite(V27, String(ACEnergyY,6));    //22
 }
 
 void resetData() {
@@ -348,26 +354,29 @@ void resetData() {
   }
   WeekDataDC[0] = DCEnergy;
 
-  ACTot = ACTot + ACEnergy;
-  DCTot = DCTot + DCEnergy;
+  ACTOTDAY = ACTOTDAY + ACEnergy;
+  DCTOTDAY = DCTOTDAY + DCEnergy;
 
-  //reset AC SENSOR
-  pzem.resetEnergy();
+  DCEnergy=0;
+  ACEnergy=0;
 
-  //reset DC SENSOR
-  uint16_t u16CRC = 0xFFFF;
-  static uint8_t resetCommand = 0x42;
-  uint8_t slaveAddr = pzemSlaveAddr;
-  u16CRC = crc16_update(u16CRC, slaveAddr);
-  u16CRC = crc16_update(u16CRC, resetCommand);
-  preTransmission();
-  PZEMDC.write(slaveAddr);
-  PZEMDC.write(resetCommand);
-  PZEMDC.write(lowByte(u16CRC));
-  PZEMDC.write(highByte(u16CRC));
-  delay(10);
-  postTransmission();
-  delay(10);
+//  //reset AC SENSOR
+//  pzem.resetEnergy();
+//
+//  //reset DC SENSOR
+//  uint16_t u16CRC = 0xFFFF;
+//  static uint8_t resetCommand = 0x42;
+//  uint8_t slaveAddr = pzemSlaveAddr;
+//  u16CRC = crc16_update(u16CRC, slaveAddr);
+//  u16CRC = crc16_update(u16CRC, resetCommand);
+//  preTransmission();
+//  PZEMDC.write(slaveAddr);
+//  PZEMDC.write(resetCommand);
+//  PZEMDC.write(lowByte(u16CRC));
+//  PZEMDC.write(highByte(u16CRC));
+//  delay(10);
+//  postTransmission();
+//  delay(10);
 }
 
 void resetSystem() {
@@ -440,6 +449,8 @@ void setup() {
   lcd.print(String(ACEnergyY, 2 + ((-1) * ((String(ACEnergyY, 0).length()) - 1))));
   ACTot = 0;
   DCTot = 0;
+  ACTOTDAY=0;
+  DCTOTDAY=0;
 
   timer = millis();
   clockTimer = millis();
@@ -506,12 +517,8 @@ void loop () {
   if (millis() - clockTimer >= 1000) {
     LocalTime();
 
-    if ((timeinfo.tm_hour == 5) && (timeinfo.tm_min >= 0) && (!reset)) {
+    if ((timeinfo.tm_hour == 5) && (timeinfo.tm_min == 0)) {
       resetData();
-      reset=true;
-    }
-    else {
-      reset=false;
     }
     //update time at lcd
     if (page == 1) {
@@ -534,3 +541,460 @@ BLYNK_WRITE(V17) {
     resetSystem();
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//BY : OVERDOSE
