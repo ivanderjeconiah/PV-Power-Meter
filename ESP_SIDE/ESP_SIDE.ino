@@ -18,7 +18,7 @@ float data[9];
 void setup() {
   Serial.begin(9600);
   Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
-  Blynk.virtualWrite(V9,"BLYNK CONNECTED");
+  //Blynk.virtualWrite(V9,"BLYNK CONNECTED");
 }
 
 
@@ -27,7 +27,7 @@ void loop() {
   if (Serial.available()) {
    
     receivedData = Serial.readStringUntil('=');
-    Blynk.virtualWrite(V9,receivedData);
+    //Blynk.virtualWrite(V9,receivedData);
     j = 0;
     bantu = "";
     for (int i = 0; i < receivedData.length(); i++) {
@@ -59,9 +59,9 @@ void loop() {
   delay(50);
 }
 
-// BLYNK_WRITE(V9){
-//   bool hasil = param.asInt();
-//   if(hasil){
-//      Serial.write("1=");
-//   }
-// }
+BLYNK_WRITE(V9){
+  bool hasil = param.asInt();
+  if(hasil){
+     Serial.write("1=");
+  }
+}
