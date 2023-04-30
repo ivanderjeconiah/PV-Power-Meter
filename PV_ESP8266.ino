@@ -51,8 +51,8 @@ char pass[] = "S14ntur1";
 //var for energy
 double WeekDataDC[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 uint8_t indexDay = 0;
-double ACTot, DCTot,ACTOTDAY,DCTOTDAY;
-bool reset=false;
+double ACTot, DCTot, ACTOTDAY, DCTOTDAY;
+bool reset = false;
 
 void AC() {
   ACVoltage = pzem.voltage();
@@ -62,7 +62,7 @@ void AC() {
   ACTot = pzem.energy();
   cosPhi = pzem.pf();
 
-  ACEnergy=ACTot-ACTOTDAY;
+  ACEnergy = ACTot - ACTOTDAY;
 
   Serial.println("AC V = " + String(ACVoltage));
   Serial.println("AC A = " + String(ACCurrent));
@@ -116,7 +116,7 @@ void AC() {
     }
     uint8_t totalString = String(ACTot, 0).length();
     lcd.setCursor(9, 1);
-    lcd.print(String(ACTot, 7-totalString));
+    lcd.print(String(ACTot, 7 - totalString));
   }
 }
 
@@ -146,8 +146,8 @@ void DC() {
     tempDouble = (node.getResponseBuffer(0x0005) << 16) + node.getResponseBuffer(0x0004);
     DCTot = tempDouble;
 
-    DCEnergy=DCTot-DCTOTDAY;
-    
+    DCEnergy = DCTot - DCTOTDAY;
+
     Psh = DCEnergy / 2550.0;
     PV = DCCurrent / 2550.0;
     SOC = ((DCVoltage - 22) / 5.6) * 100;
@@ -215,7 +215,7 @@ void DC() {
     }
     uint8_t totalString = String(DCTot, 0).length();
     lcd.setCursor(9, 2);
-    lcd.print(String(DCTot, 7-totalString));
+    lcd.print(String(DCTot, 7 - totalString));
 
     lcd.setCursor(8, 3);
     if (BatStat) {
@@ -240,6 +240,28 @@ void Halaman1() {
   lcd.setCursor(0, 3);
   lcd.print("D:    KWh Y :    KWh");
 
+  lcd.setCursor(2, 0);
+  lcd.print(String(ACVoltage, 1));
+  uint8_t totalString = String(ACCurrent, 0).length();
+  lcd.setCursor(2, 1);
+  lcd.print(String(ACCurrent, 3 + ((-1) * (totalString - 1))));
+  lcd.setCursor(2, 2);
+  totalString = String(ACPower, 0).length();
+  lcd.print(String(ACPower, 3 + ((-1) * (totalString - 1))));
+  lcd.setCursor(2, 3);
+  lcd.print("    ");
+  lcd.setCursor(2, 3);
+  totalString = String(ACEnergy, 0).length();
+  lcd.print(String(ACEnergy, 2 + ((-1) * (totalString - 1))));
+
+  lcd.setCursor(14, 0);
+  lcd.print(String(ACFrequency, 1));
+  lcd.setCursor(14, 1);
+  lcd.print(String(cosPhi, 1));
+
+  lcd.setCursor(13, 3);
+  lcd.print(String(ACEnergyY, 2 + ((-1) * ((String(ACEnergyY, 0).length()) - 1))));
+
 }
 
 void Halaman2() {
@@ -255,6 +277,28 @@ void Halaman2() {
   lcd.setCursor(0, 3);
   lcd.print("D:    KWh Y :    KWh");
 
+  lcd.setCursor(2, 0);
+  lcd.print(String(DCVoltage, 1));
+  uint8_t totalString = String(DCCurrent, 0).length();
+  lcd.setCursor(2, 1);
+  lcd.print(String(DCCurrent, 3 + ((-1) * (totalString - 1))));
+  lcd.setCursor(2, 2);
+  totalString = String(DCPower, 0).length();
+  lcd.print(String(DCPower, 3 + ((-1) * (totalString - 1))));
+  lcd.setCursor(2, 3);
+  totalString = String(DCEnergy, 0).length();
+  lcd.print(String(DCEnergy, 2 + ((-1) * (totalString - 1))));
+
+  lcd.setCursor(14, 0);
+  lcd.print(String(Psh, 1));
+  lcd.setCursor(14, 1);
+  lcd.print(String(PV, 1));
+  lcd.setCursor(14, 2);
+  lcd.print(String(SOC, 0));
+
+  lcd.setCursor(13, 3);
+  lcd.print(String(DCEnergyY, 2 + ((-1) * ((String(DCEnergyY, 0).length()) - 1))));
+
 }
 
 void Halaman3() {
@@ -266,6 +310,24 @@ void Halaman3() {
   lcd.print("DC P TOT:        KWh");
   lcd.setCursor(0, 3);
   lcd.print("STATUS: ");
+
+
+
+  uint8_t totalString = String(DCTot, 0).length();
+  lcd.setCursor(9, 2);
+  lcd.print(String(DCTot, 7 - totalString));
+
+  totalString = String(ACTot, 0).length();
+  lcd.setCursor(9, 1);
+  lcd.print(String(ACTot, 7 - totalString));
+
+  lcd.setCursor(8, 3);
+  if (BatStat) {
+    lcd.print("CHARGING");
+  }
+  else {
+    lcd.print("DISCHARGING");
+  }
 
 }
 
@@ -311,30 +373,30 @@ void updateBlynk() {
   Blynk.virtualWrite(V7, DCVoltage);  //1
   Blynk.virtualWrite(V8, DCCurrent);  //2
   Blynk.virtualWrite(V9, DCPower);    //3
-  Blynk.virtualWrite(V10, String(DCTot,6));     //4
+  Blynk.virtualWrite(V10, String(DCTot, 6));    //4
   Blynk.virtualWrite(V11, Psh);       //5
   Blynk.virtualWrite(V12, PV);        //6
   Blynk.virtualWrite(V13, ACVoltage); //7
   Blynk.virtualWrite(V14, ACCurrent); //8
   Blynk.virtualWrite(V15, ACPower);   //9
-  Blynk.virtualWrite(V16, String(DCEnergy,6));  //10
+  Blynk.virtualWrite(V16, String(DCEnergy, 6)); //10
   // Blynk.virtualWrite(V0, RESET);   //11
   Blynk.virtualWrite(V18, ACTot);     //12
   Blynk.virtualWrite(V19, SOC);       //14
-  Blynk.virtualWrite(V20, String(DCEnergyY,6)); //15
-  Blynk.virtualWrite(V21, String(WeekDataDC[1],6)); //16
-  Blynk.virtualWrite(V22, String(WeekDataDC[2],6)); //17
-  Blynk.virtualWrite(V23, String(WeekDataDC[3],6)); //18
-  Blynk.virtualWrite(V24, String(WeekDataDC[4],6)); //19
-  Blynk.virtualWrite(V25, String(WeekDataDC[5],6)); //20
-  Blynk.virtualWrite(V26, String(ACEnergy,6));     //21
-  Blynk.virtualWrite(V27, String(ACEnergyY,6));    //22
+  Blynk.virtualWrite(V20, String(DCEnergyY, 6)); //15
+  Blynk.virtualWrite(V21, String(WeekDataDC[1], 6)); //16
+  Blynk.virtualWrite(V22, String(WeekDataDC[2], 6)); //17
+  Blynk.virtualWrite(V23, String(WeekDataDC[3], 6)); //18
+  Blynk.virtualWrite(V24, String(WeekDataDC[4], 6)); //19
+  Blynk.virtualWrite(V25, String(WeekDataDC[5], 6)); //20
+  Blynk.virtualWrite(V26, String(ACEnergy, 6));    //21
+  Blynk.virtualWrite(V27, String(ACEnergyY, 6));   //22
 }
 
 void resetData() {
   DCEnergyY = DCEnergy;
   ACEnergyY = ACEnergy;
-  if (page == 3) {
+  if (page == 2) {
     lcd.setCursor(13, 3);
     lcd.print("    ");
     lcd.setCursor(13, 3);
@@ -357,26 +419,26 @@ void resetData() {
   ACTOTDAY = ACTOTDAY + ACEnergy;
   DCTOTDAY = DCTOTDAY + DCEnergy;
 
-  DCEnergy=0;
-  ACEnergy=0;
+  DCEnergy = 0;
+  ACEnergy = 0;
 
-//  //reset AC SENSOR
-//  pzem.resetEnergy();
-//
-//  //reset DC SENSOR
-//  uint16_t u16CRC = 0xFFFF;
-//  static uint8_t resetCommand = 0x42;
-//  uint8_t slaveAddr = pzemSlaveAddr;
-//  u16CRC = crc16_update(u16CRC, slaveAddr);
-//  u16CRC = crc16_update(u16CRC, resetCommand);
-//  preTransmission();
-//  PZEMDC.write(slaveAddr);
-//  PZEMDC.write(resetCommand);
-//  PZEMDC.write(lowByte(u16CRC));
-//  PZEMDC.write(highByte(u16CRC));
-//  delay(10);
-//  postTransmission();
-//  delay(10);
+  //  //reset AC SENSOR
+  //  pzem.resetEnergy();
+  //
+  //  //reset DC SENSOR
+  //  uint16_t u16CRC = 0xFFFF;
+  //  static uint8_t resetCommand = 0x42;
+  //  uint8_t slaveAddr = pzemSlaveAddr;
+  //  u16CRC = crc16_update(u16CRC, slaveAddr);
+  //  u16CRC = crc16_update(u16CRC, resetCommand);
+  //  preTransmission();
+  //  PZEMDC.write(slaveAddr);
+  //  PZEMDC.write(resetCommand);
+  //  PZEMDC.write(lowByte(u16CRC));
+  //  PZEMDC.write(highByte(u16CRC));
+  //  delay(10);
+  //  postTransmission();
+  //  delay(10);
 }
 
 void resetSystem() {
@@ -449,8 +511,8 @@ void setup() {
   lcd.print(String(ACEnergyY, 2 + ((-1) * ((String(ACEnergyY, 0).length()) - 1))));
   ACTot = 0;
   DCTot = 0;
-  ACTOTDAY=0;
-  DCTOTDAY=0;
+  ACTOTDAY = 0;
+  DCTOTDAY = 0;
 
   timer = millis();
   clockTimer = millis();
@@ -476,23 +538,12 @@ void loop () {
       lcd.clear();
       if (page == 1) {
         Halaman1();
-        lcd.setCursor(13, 3);
-        lcd.print(String(ACEnergyY, 2 + ((-1) * ((String(ACEnergyY, 0).length()) - 1))));
       }
       else if (page == 2) {
         Halaman2();
-        lcd.setCursor(13, 3);
-        lcd.print(String(DCEnergyY, 2 + ((-1) * ((String(DCEnergyY, 0).length()) - 1))));
       }
       else if (page == 3) {
         Halaman3();
-        lcd.setCursor(8, 3);
-        if (BatStat) {
-          lcd.print("CHARGING");
-        }
-        else {
-          lcd.print("DISCHARGING");
-        }
       }
       else if (page == 4) {
         Halaman4();
