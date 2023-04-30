@@ -119,6 +119,7 @@ void(* resetFunc) (void) = 0;
 
 void setup() {
   Serial.begin(9600);
+  ESPCon.begin(9600);
   timer = millis();
 }
 
