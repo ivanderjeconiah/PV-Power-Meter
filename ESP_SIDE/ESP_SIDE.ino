@@ -18,13 +18,16 @@ float data[9];
 void setup() {
   Serial.begin(9600);
   Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+  Blynk.virtualWrite(V10,"BLYNK CONNECTED");
 }
 
 
 void loop() {
   Blynk.run();
   if (Serial.available()) {
+   
     receivedData = Serial.readStringUntil('=');
+    Blynk.virtualWrite(V10,receivedData);
     j = 0;
     bantu = "";
     for (int i = 0; i < receivedData.length(); i++) {
