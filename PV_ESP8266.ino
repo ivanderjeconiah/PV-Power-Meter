@@ -100,8 +100,8 @@ void AC() {
     lcd.setCursor(2, 3);
     lcd.print("    ");
     lcd.setCursor(2, 3);
-    totalString = String(DCEnergy, 0).length();
-    lcd.print(String(DCEnergy, 2 + ((-1) * (totalString - 1))));
+    totalString = String(ACEnergy, 0).length();
+    lcd.print(String(ACEnergy, 2 + ((-1) * (totalString - 1))));
 
     lcd.setCursor(14, 0);
     lcd.print(String(ACFrequency, 1));
