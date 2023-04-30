@@ -1,8 +1,8 @@
 //#define BLYNK_PRINT Serial
 
-#define BLYNK_TEMPLATE_ID           "TMPxxxxxx"
-#define BLYNK_TEMPLATE_NAME         "Device"
-#define BLYNK_AUTH_TOKEN            "YourAuthToken"
+#define BLYNK_TEMPLATE_ID "TMPL6bL1P67s7"
+#define BLYNK_TEMPLATE_NAME "PVMonitoring"
+#define BLYNK_AUTH_TOKEN "ur3y7gAE_htbTCLpu62OTBOvR0IOPcXi"
 
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
