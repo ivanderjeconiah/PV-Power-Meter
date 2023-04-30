@@ -8,8 +8,8 @@
 #include <BlynkSimpleEsp8266.h>
 
 //variable declaration
-char ssid[] = "YourNetworkName";
-char pass[] = "YourPassword";
+char ssid[] = "Steven";
+char pass[] = "S14ntur1";
 String receivedData, bantu;
 int j;
 float data[9];
