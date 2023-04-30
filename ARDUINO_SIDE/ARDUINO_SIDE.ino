@@ -68,7 +68,7 @@ void readVoltage2() {
 
 void readCurrent() {
   for (int i = 0; i < 1000 ; i++) {
-    Vout = (Vout + (resADC * analogRead(A0)));
+    Vout = (Vout + (resADC * analogRead(A2)));
     delay(1);
   }
   Vout = Vout / 1000;
