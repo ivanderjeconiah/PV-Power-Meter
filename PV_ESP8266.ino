@@ -101,7 +101,7 @@ void AC() {
     lcd.print("    ");
     lcd.setCursor(2, 3);
     totalString = String(ACEnergy, 0).length();
-    lcd.print(String(ACEnergy, 2 + ((-1) * (totalString - 1))));
+    lcd.print(String(ACEnergy, 3 + ((-1) * (totalString - 1))));
 
     lcd.setCursor(14, 0);
     lcd.print(String(ACFrequency, 1));
@@ -198,7 +198,7 @@ void DC() {
     lcd.print(String(DCPower, 3 + ((-1) * (totalString - 1))));
     lcd.setCursor(2, 3);
     totalString = String(DCEnergy, 0).length();
-    lcd.print(String(DCEnergy, 2 + ((-1) * (totalString - 1))));
+    lcd.print(String(DCEnergy, 3 + ((-1) * (totalString - 1))));
 
     lcd.setCursor(14, 0);
     lcd.print(String(Psh, 1));
@@ -252,7 +252,7 @@ void Halaman1() {
   lcd.print("    ");
   lcd.setCursor(2, 3);
   totalString = String(ACEnergy, 0).length();
-  lcd.print(String(ACEnergy, 2 + ((-1) * (totalString - 1))));
+  lcd.print(String(ACEnergy, 3 + ((-1) * (totalString - 1))));
 
   lcd.setCursor(14, 0);
   lcd.print(String(ACFrequency, 1));
@@ -260,7 +260,7 @@ void Halaman1() {
   lcd.print(String(cosPhi, 1));
 
   lcd.setCursor(13, 3);
-  lcd.print(String(ACEnergyY, 2 + ((-1) * ((String(ACEnergyY, 0).length()) - 1))));
+  lcd.print(String(ACEnergyY, 3 + ((-1) * ((String(ACEnergyY, 0).length()) - 1))));
 
 }
 
@@ -287,7 +287,7 @@ void Halaman2() {
   lcd.print(String(DCPower, 3 + ((-1) * (totalString - 1))));
   lcd.setCursor(2, 3);
   totalString = String(DCEnergy, 0).length();
-  lcd.print(String(DCEnergy, 2 + ((-1) * (totalString - 1))));
+  lcd.print(String(DCEnergy, 3 + ((-1) * (totalString - 1))));
 
   lcd.setCursor(14, 0);
   lcd.print(String(Psh, 1));
@@ -297,7 +297,7 @@ void Halaman2() {
   lcd.print(String(SOC, 0));
 
   lcd.setCursor(13, 3);
-  lcd.print(String(DCEnergyY, 2 + ((-1) * ((String(DCEnergyY, 0).length()) - 1))));
+  lcd.print(String(DCEnergyY, 3 + ((-1) * ((String(DCEnergyY, 0).length()) - 1))));
 
 }
 
@@ -400,14 +400,14 @@ void resetData() {
     lcd.setCursor(13, 3);
     lcd.print("    ");
     lcd.setCursor(13, 3);
-    lcd.print(String(DCEnergyY, 2 + ((-1) * ((String(DCEnergyY, 0).length()) - 1))));
+    lcd.print(String(DCEnergyY, 3 + ((-1) * ((String(DCEnergyY, 0).length()) - 1))));
   }
 
   else if (page == 1) {
     lcd.setCursor(13, 3);
     lcd.print("    ");
     lcd.setCursor(13, 3);
-    lcd.print(String(ACEnergyY, 2 + ((-1) * ((String(ACEnergyY, 0).length()) - 1))));
+    lcd.print(String(ACEnergyY, 3 + ((-1) * ((String(ACEnergyY, 0).length()) - 1))));
   }
 
   //update array data
@@ -507,8 +507,6 @@ void setup() {
   lcd.clear();
   delay(100);
   Halaman1();
-  lcd.setCursor(13, 3);
-  lcd.print(String(ACEnergyY, 2 + ((-1) * ((String(ACEnergyY, 0).length()) - 1))));
   ACTot = 0;
   DCTot = 0;
   ACTOTDAY = 0;
@@ -532,7 +530,7 @@ void loop () {
     if (digitalRead(15) == HIGH) {
       Serial.println("NEXT PAGE");
       page++;
-      if (page > 4) {
+      if (page > 5) {
         page = 1;
       }
       lcd.clear();
