@@ -554,11 +554,11 @@ void loop () {
     LocalTime();
     Serial.println("Jam : "+String(timeinfo.tm_hour));
     Serial.println("Menit : "+String(timeinfo.tm_min));
-    if ((timeinfo.tm_hour == 10) && (timeinfo.tm_min == 28) && (!reset)) {
+    if ((timeinfo.tm_hour == 11) && (timeinfo.tm_min == 45) && (!reset)) {
       resetData();
       reset=true;
     }
-    else if ((timeinfo.tm_hour == 10) && (timeinfo.tm_min == 29) && (reset)){
+    else if ((timeinfo.tm_hour == 11) && (timeinfo.tm_min == 46) && (reset)){
       reset=false;
     }
     //update time at lcd
