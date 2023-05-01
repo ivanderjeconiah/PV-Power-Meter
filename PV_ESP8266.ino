@@ -445,6 +445,9 @@ void resetSystem() {
 
   Serial.println("BYEEE!!!!");
   delay(100);
+  
+  lcd.clear();
+  lcd.noBacklight();
   ESP.restart();
 }
 
