@@ -551,7 +551,7 @@ void loop () {
     LocalTime();
     Serial.println("Jam : "+String(timeinfo.tm_hour));
     Serial.println("Menit : "+String(timeinfo.tm_min));
-    if ((timeinfo.tm_hour == 9) && (timeinfo.tm_min == 15)) {
+    if ((timeinfo.tm_hour == 10) && (timeinfo.tm_min == 15)) {
       resetData();
     }
     //update time at lcd
