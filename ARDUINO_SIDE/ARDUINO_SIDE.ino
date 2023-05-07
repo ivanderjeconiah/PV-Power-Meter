@@ -127,9 +127,9 @@ void loop() {
   if (ESPCon.available()){
     receivedData= ESPCon.readStringUntil('=');
     Serial.println(receivedData);
-    if(receivedData=='1'){
+    //if(receivedData=='1'){
       pzem.resetEnergy();
-    }
+    //}
   }
   if (millis() - timer >= 1000) {
     readVoltage1();
