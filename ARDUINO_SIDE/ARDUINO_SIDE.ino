@@ -118,7 +118,7 @@ void SOC_calculate() {
 void(* resetFunc) (void) = 0;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(4800);
   ESPCon.begin(9600);
   timer = millis();
 }
