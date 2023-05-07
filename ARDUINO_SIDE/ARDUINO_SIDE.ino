@@ -126,6 +126,7 @@ void setup() {
 void loop() {
   if (ESPCon.available()){
     receivedData= ESPCon.readStringUntil('=');
+    Serial.println(receivedData);
     if(receivedData=='1'){
       resetFunc();
     }
