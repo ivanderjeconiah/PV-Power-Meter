@@ -115,10 +115,10 @@ void SOC_calculate() {
   Serial.println(SOC);
 }
 
-void(* resetFunc) (void) = 0;
+
 
 void setup() {
-  Serial.begin(4800);
+  Serial.begin(9600);
   ESPCon.begin(9600);
   timer = millis();
 }
@@ -128,7 +128,7 @@ void loop() {
     receivedData= ESPCon.readStringUntil('=');
     Serial.println(receivedData);
     if(receivedData=='1'){
-      resetFunc();
+      pzem.resetEnergy();
     }
   }
   if (millis() - timer >= 1000) {
