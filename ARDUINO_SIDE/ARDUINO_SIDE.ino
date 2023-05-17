@@ -1,7 +1,7 @@
 #include<SoftwareSerial.h>
 #include<PZEM004Tv30.h>
 
-SoftwareSerial ESPCon(9, 8);
+SoftwareSerial ESPCon(8, 9);
 SoftwareSerial PZEM(10, 11);
 PZEM004Tv30 pzem(PZEM);
 
@@ -69,7 +69,7 @@ void readVoltage2() {
 void readCurrent() {
   for (int i = 0; i < 1000 ; i++) {
     Vout = (Vout + (resADC * analogRead(A2)));
-    delay(1);
+    delay(0.1);
   }
   Vout = Vout / 1000;
   Current = (Vout - zeroPoint) / scale_factor;
@@ -118,20 +118,25 @@ void SOC_calculate() {
 
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(4800);
   ESPCon.begin(9600);
   timer = millis();
 }
 
 void loop() {
+  ESPCon.listen();
   if (ESPCon.available()){
+    Serial.println("masok ... lanjoettt");
     receivedData= ESPCon.readStringUntil('=');
     Serial.println(receivedData);
-    //if(receivedData=='1'){
+    if(receivedData=='1'){
       pzem.resetEnergy();
-    //}
+      Serial.println("reset ok");
+    }
+    
   }
-  if (millis() - timer >= 1000) {
+  if (millis() - timer >= 2000) {
+    PZEM.listen();
     readVoltage1();
     readCurrent();
     pvPow = inVoltage1 * Current;
@@ -140,6 +145,7 @@ void loop() {
     readLux();
     readACSensor();
     sendDat();
+    timer=millis();
   }
 
 }
